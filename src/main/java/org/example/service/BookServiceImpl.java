@@ -19,22 +19,41 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto createBook(CreateBookRequestDto createBookRequestDto) {
-        Book book = bookMapper.dtoToModel(createBookRequestDto);
+        Book book = bookMapper.toEntity(createBookRequestDto);
         Book savedBook = bookRepository.save(book);
-        return bookMapper.modelToDto(savedBook);
+        return bookMapper.toDto(savedBook);
     }
 
     @Override
     public List<BookDto> getAll() {
         return bookRepository.findAll().stream()
-                .map(bookMapper::modelToDto)
+                .map(bookMapper::toDto)
                 .toList();
     }
 
     @Override
     public BookDto getBookById(Long id) {
-        Book book = bookRepository.getById(id).orElseThrow(
+        Book book = bookRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Book with id " + id + " not found"));
-        return bookMapper.modelToDto(book);
+        return bookMapper.toDto(book);
+    }
+
+    @Override
+    public void deleteBookById(Long id) {
+        bookRepository.deleteById(id);
+    }
+
+    @Override
+    public CreateBookRequestDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
+        Book book = bookRepository.findById(id).get();
+        book.setTitle(updateBookRequestDto.title());
+        book.setAuthor(updateBookRequestDto.author());
+        book.setPrice(updateBookRequestDto.price());
+        book.setIsbn(updateBookRequestDto.isbn());
+        book.setDescription(updateBookRequestDto.description());
+        book.setCoverImage(updateBookRequestDto.coverImage());
+        bookRepository.save(book);
+        return updateBookRequestDto;
+
     }
 }
