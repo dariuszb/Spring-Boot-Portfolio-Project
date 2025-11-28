@@ -33,19 +33,20 @@ public class BookController {
         return bookService.getBookById(id);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public BookDto createBook(@RequestBody CreateBookRequestDto bookDto) {
         return bookService.createBook(bookDto);
     }
 
     @PutMapping("/{id}")
-    public CreateBookRequestDto updateBook(@PathVariable Long id,
+    public BookDto updateBook(@PathVariable Long id,
                                            @RequestBody CreateBookRequestDto updateBookRequestDto) {
         return bookService.updateBookById(id, updateBookRequestDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         bookService.deleteBookById(id);
     }
