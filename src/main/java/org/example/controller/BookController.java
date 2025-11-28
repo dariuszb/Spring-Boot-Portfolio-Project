@@ -3,7 +3,7 @@ package org.example.controller;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.BookDto;
-import org.example.dto.BookSearchParameters;
+import org.example.dto.BookSearchParametersDto;
 import org.example.dto.CreateBookRequestDto;
 import org.example.service.BookService;
 import org.springframework.http.HttpStatus;
@@ -35,8 +35,8 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public List<BookDto> searchBooks(BookSearchParameters searchParameters) {
-        return bookService.search(searchParameters);
+    public List<BookDto> searchBooks(BookSearchParametersDto searchParametersDto) {
+        return bookService.search(searchParametersDto);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
