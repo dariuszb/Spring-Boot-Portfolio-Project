@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: create-books-table
-      author: username
+      author: dbereszynski
       changes:
         - createTable:
             tableName: books
@@ -37,13 +37,9 @@ databaseChangeLog:
               - column:
                   name: description
                   type: varchar(255)
-                  constraints:
-                    nullable: false
               - column:
                   name: cover_image
                   type: varchar(255)
-                  constraints:
-                    nullable: false
               - column:
                   name: is_deleted
                   type: bit
