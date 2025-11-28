@@ -3,7 +3,7 @@ package org.example.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.BookDto;
-import org.example.dto.BookSearchParameters;
+import org.example.dto.BookSearchParametersDto;
 import org.example.dto.CreateBookRequestDto;
 import org.example.exceptions.EntityNotFoundException;
 import org.example.mappers.BookMapper;
@@ -62,7 +62,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> search(BookSearchParameters params) {
+    public List<BookDto> search(BookSearchParametersDto params) {
         Specification<Book> buildSpecification = bookSpecificationBuilder
                 .buildSpecification(params);
         return bookRepository.findAll(buildSpecification)

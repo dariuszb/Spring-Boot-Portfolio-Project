@@ -2,6 +2,7 @@ package org.example.repository.book;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.exceptions.EntityNotFoundException;
 import org.example.model.Book;
 import org.example.repository.user.SpecificationProvider;
 import org.example.repository.user.SpecificationProviderManager;
@@ -19,7 +20,7 @@ public class BookSpecificationProviderManager implements SpecificationProviderMa
                 .stream()
                 .filter(b -> b.getKey().equals(key))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Specification Provider not found for key " + key));
     }
 }

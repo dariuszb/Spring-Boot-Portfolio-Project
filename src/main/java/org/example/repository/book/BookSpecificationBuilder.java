@@ -1,7 +1,9 @@
 package org.example.repository.book;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.BookSearchParameters;
+import org.example.dto.BookSearchParametersDto;
 import org.example.model.Book;
 import org.example.repository.user.SpecificationBuilder;
 import org.example.repository.user.SpecificationProviderManager;
@@ -15,31 +17,23 @@ public class BookSpecificationBuilder implements SpecificationBuilder<Book> {
     private final SpecificationProviderManager<Book> specificationProviderManager;
 
     @Override
-    public Specification<Book> buildSpecification(BookSearchParameters searchParameters) {
+    public Specification<Book> buildSpecification(BookSearchParametersDto searchParameters) {
 
         Specification<Book> specification = Specification.unrestricted();
 
-        if (searchParameters.titles() != null && searchParameters.titles().length > 0) {
+        Map<String, String[]> parametersMap = new HashMap<>();
+        parametersMap.put("title", searchParameters.titles());
+        parametersMap.put("author", searchParameters.authors());
+        parametersMap.put("isbn", searchParameters.isbn());
 
-            specification = specification.and(specificationProviderManager
-                    .getSpecificationProvider("title")
-                    .getSpecification(searchParameters.titles()));
+        for (Map.Entry<String, String[]> entry : parametersMap.entrySet()) {
+            if (entry.getValue() != null && entry.getValue().length > 0) {
+
+                specification = specification.and(specificationProviderManager
+                        .getSpecificationProvider(entry.getKey())
+                        .getSpecification(entry.getValue()));
+            }
         }
-
-        if (searchParameters.authors() != null && searchParameters.authors().length > 0) {
-
-            specification = specification.and(specificationProviderManager
-                    .getSpecificationProvider("author")
-                    .getSpecification(searchParameters.authors()));
-        }
-
-        if (searchParameters.isbn() != null && searchParameters.isbn().length > 0) {
-
-            specification = specification.and(specificationProviderManager
-                    .getSpecificationProvider("isbn")
-                    .getSpecification(searchParameters.isbn()));
-        }
-
         return specification;
     }
 }
