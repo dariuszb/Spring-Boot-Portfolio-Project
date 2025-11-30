@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,27 +27,33 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
+    @Operation(summary = "Find all books", description = "Find all books")
     public List<BookDto> getAll() {
         return bookService.getAll();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get book by id", description = "Get book by id")
     public BookDto getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Search books by params", description
+            = "Search books by specific parameters")
     public List<BookDto> searchBooks(BookSearchParametersDto searchParametersDto) {
         return bookService.search(searchParametersDto);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new book", description = "Create new book")
     public BookDto createBook(@RequestBody @Valid CreateBookRequestDto bookDto) {
         return bookService.createBook(bookDto);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update book's properties", description = "Update book's properties")
     public BookDto updateBook(
             @PathVariable Long id,
             @RequestBody @Valid CreateBookRequestDto updateBookRequestDto) {
@@ -54,6 +61,7 @@ public class BookController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete book by id", description = "Delete book by id")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         bookService.deleteBookById(id);
