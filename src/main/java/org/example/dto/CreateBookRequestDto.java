@@ -1,17 +1,15 @@
 package org.example.dto;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
-import org.example.validator.Isbn;
 
 public record CreateBookRequestDto(
-        @NotNull
+        @NotBlank
         String title,
-        @NotNull
+        @NotBlank
         String author,
-        @NotNull
-        @Isbn
+        @NotBlank
         String isbn,
         @Min(0)
         BigDecimal price,
