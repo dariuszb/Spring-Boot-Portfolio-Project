@@ -10,6 +10,7 @@ import org.example.mappers.BookMapper;
 import org.example.model.Book;
 import org.example.repository.book.BookRepository;
 import org.example.repository.user.SpecificationBuilder;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +30,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> getAll() {
-        return bookRepository.findAll().stream()
+    public List<BookDto> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable).stream()
                 .map(bookMapper::toDto)
                 .toList();
     }
@@ -48,16 +49,17 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
-        Book book = bookRepository.findById(id).get();
+    public CreateBookRequestDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
+        Book book = bookRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Book with id " + id + " not found"));
         book.setTitle(updateBookRequestDto.title());
         book.setAuthor(updateBookRequestDto.author());
         book.setPrice(updateBookRequestDto.price());
         book.setIsbn(updateBookRequestDto.isbn());
         book.setDescription(updateBookRequestDto.description());
         book.setCoverImage(updateBookRequestDto.coverImage());
-        Book savedBook = bookRepository.save(book);
-        return bookMapper.toDto(savedBook);
+        bookRepository.save(book);
+        return updateBookRequestDto;
 
     }
 
