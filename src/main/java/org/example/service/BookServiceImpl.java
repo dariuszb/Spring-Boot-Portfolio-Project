@@ -10,6 +10,8 @@ import org.example.mappers.BookMapper;
 import org.example.model.Book;
 import org.example.repository.book.BookRepository;
 import org.example.repository.user.SpecificationBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> findAll(Pageable pageable) {
-        return bookRepository.findAll(pageable).stream()
+    public Page<BookDto> findAll(Pageable pageable) {
+        List<BookDto> list = bookRepository.findAll(pageable).stream()
                 .map(bookMapper::toDto)
                 .toList();
+        return new PageImpl<>(list);
     }
 
     @Override
