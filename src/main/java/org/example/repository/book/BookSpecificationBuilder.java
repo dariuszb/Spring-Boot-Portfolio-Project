@@ -3,7 +3,7 @@ package org.example.repository.book;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.BookSearchParametersDto;
+import org.example.dto.bookdto.BookSearchParametersDto;
 import org.example.model.Book;
 import org.example.repository.user.SpecificationBuilder;
 import org.example.repository.user.SpecificationProviderManager;
