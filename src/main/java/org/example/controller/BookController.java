@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.BookDto;
-import org.example.dto.BookSearchParametersDto;
-import org.example.dto.CreateBookRequestDto;
+import org.example.dto.bookdto.BookDto;
+import org.example.dto.bookdto.BookSearchParametersDto;
+import org.example.dto.bookdto.CreateBookRequestDto;
 import org.example.service.BookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Book management", description = "Endpoints for books products")
+@Tag(name = "Book management", description = "Endpoints for books-products")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/books")
