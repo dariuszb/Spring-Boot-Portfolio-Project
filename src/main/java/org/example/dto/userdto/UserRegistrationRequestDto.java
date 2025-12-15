@@ -10,8 +10,8 @@ import org.hibernate.validator.constraints.Length;
 @FieldMatch.List({
         @FieldMatch(
                 field = "password",
-                fieldMatch = "confirmPassword",
-                message = "Confirm password is incorrect."
+                fieldMatch = "repeatPassword",
+                message = "Repeat password is incorrect."
                 )
 })
 
@@ -24,12 +24,11 @@ public class UserRegistrationRequestDto {
     private String password;
     @NotBlank
     @Length(min = 8, max = 20)
-    private String confirmPassword;
+    private String repeatPassword;
     @NotBlank
     private String firstName;
     @NotBlank
     private String lastName;
-    @NotBlank
     private String shippingAddress;
 
 }

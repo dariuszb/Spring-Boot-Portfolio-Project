@@ -13,6 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                    unique: true
               - column:
                   name: email
                   type: varchar(255)
@@ -37,7 +38,7 @@ databaseChangeLog:
                   name: shipping_address
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: is_deleted
                   type: bit

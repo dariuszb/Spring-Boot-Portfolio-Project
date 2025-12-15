@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Constraint(validatedBy = FieldMatchValidator.class)
-@Target({ElementType.TYPE/*, ElementType.PARAMETER, ElementType.FIELD*/})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 
 public @interface FieldMatch {

@@ -3,7 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.userdto.UserRegistrationRequestDto;
 import org.example.dto.userdto.UserResponseDto;
-import org.example.exceptions.RegisterUserException;
+import org.example.exceptions.RegistrationException;
 import org.example.mappers.UserMapper;
 import org.example.model.User;
 import org.example.repository.user.UserRepository;
@@ -18,18 +18,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto register(UserRegistrationRequestDto userRegistrationRequestDto)
-            throws RegisterUserException {
+            throws RegistrationException {
         if (userRepository.findByEmail(userRegistrationRequestDto.getEmail()).isPresent()) {
 
-            throw new RegisterUserException("Can't register user");
+            throw new RegistrationException("Can't register user");
         }
-        User user = new org.example.model.User();
-        user.setEmail(userRegistrationRequestDto.getEmail());
-        user.setPassword(userRegistrationRequestDto.getPassword());
-        user.setFirstName(userRegistrationRequestDto.getFirstName());
-        user.setLastName(userRegistrationRequestDto.getLastName());
-        user.setShippingAddress(userRegistrationRequestDto.getShippingAddress());
+        User user = userMapper.toEntity(userRegistrationRequestDto);
         User savedUser = userRepository.save(user);
-        return userMapper.toDto(userRepository.getById(savedUser.getId()));
+        return userMapper.toDto(savedUser);
     }
 }
