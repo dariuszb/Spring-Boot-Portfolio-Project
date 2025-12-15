@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.userdto.UserRegistrationRequestDto;
 import org.example.dto.userdto.UserResponseDto;
-import org.example.exceptions.RegisterUserException;
+import org.example.exceptions.RegistrationException;
 import org.example.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +25,7 @@ public class AuthenticationController {
     @Operation(summary = "Registration of user", description = "Registration of user")
     public UserResponseDto registerUser(@RequestBody @Valid
                                             UserRegistrationRequestDto userRegistrationRequestDto)
-            throws RegisterUserException {
+            throws RegistrationException {
         return userService.register(userRegistrationRequestDto);
     }
 }
