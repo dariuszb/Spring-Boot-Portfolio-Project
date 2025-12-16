@@ -29,7 +29,7 @@ public class User {
     private String firstName;
     @Column(nullable = false)
     private String lastName;
-    @Column(nullable = false)
+    @Column
     private String shippingAddress;
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
