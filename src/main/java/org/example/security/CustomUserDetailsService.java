@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class SecurityUserService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -17,6 +17,6 @@ public class SecurityUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "Can't find user by email" + email));
+                        "Can't find user by email " + email));
     }
 }

@@ -45,6 +45,7 @@ public class BookController {
         return bookService.getBookById(id);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/search")
     @Operation(summary = "Search books by params", description
             = "Search books by specific parameters")
