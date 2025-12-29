@@ -4,15 +4,24 @@ databaseChangeLog:
       author: dbereszynski
       changes:
         - createTable:
-            tableName: users_roles
+            tableName: user_roles
             columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
               - column:
                   name: user_id
                   type: bigint
                   constraints:
                     nullable: false
+                    foreignKeyName: role_id
               - column:
                   name: role_id
                   type: bigint
                   constraints:
                     nullable: false
+                    foreignKeyName: user_id

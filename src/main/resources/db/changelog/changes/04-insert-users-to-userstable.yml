@@ -14,7 +14,7 @@ databaseChangeLog:
             tableName: users
             columns:
             - column: { name: email, value: "user2@email2.com"}
-            - column: { name: password, value: "$2a$10$71b04uiKaZ4XaEqlkmtQKOFo8PXDvWp10bYLtunrDZ72YxXMB8"}
+            - column: { name: password, value: "$2a$10$71b04uiKaZ4XaEqlkmtQKOFo8PXDvWp10bYLtunrDZ72YxXMcjdB8"}
             - column: { name: first_name, value: "User2FirstName" }
             - column: { name: last_name, value: "User2LastName" }
         - insert:
