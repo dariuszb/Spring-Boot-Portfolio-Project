@@ -8,4 +8,6 @@ public interface UserService {
 
     UserResponseDto register(UserRegistrationRequestDto userRegistrationRequestDto)
             throws RegistrationException;
+
+    UserResponseDto getByEmail(String email);
 }

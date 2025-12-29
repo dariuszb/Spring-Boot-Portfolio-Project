@@ -1,4 +1,4 @@
-package org.example.mapperconfiguration;
+package org.example.configuration;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.NullValueCheckStrategy;
