@@ -1,12 +1,15 @@
-package org.example.controller;
+package org.example.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.userdto.UserLoginRequestDto;
+import org.example.dto.userdto.UserLoginResponseDto;
 import org.example.dto.userdto.UserRegistrationRequestDto;
 import org.example.dto.userdto.UserResponseDto;
 import org.example.exceptions.RegistrationException;
+import org.example.security.AuthenticationService;
 import org.example.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/registration")
     @Operation(summary = "Registration of user", description = "Registration of user")
@@ -27,5 +31,10 @@ public class AuthenticationController {
                                             UserRegistrationRequestDto userRegistrationRequestDto)
             throws RegistrationException {
         return userService.register(userRegistrationRequestDto);
+    }
+
+    @PostMapping("/login")
+    public UserLoginResponseDto login(@RequestBody UserLoginRequestDto userLoginRequestDto) {
+        return authenticationService.authenticate(userLoginRequestDto);
     }
 }
