@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,22 +33,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = getToken(request);
 
-        if (token != null && jwtUtil.isValidToken(token)) {
-            String userName = jwtUtil.getUserName(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (token != null && jwtUtil.isValidToken(token)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                String userName = jwtUtil.getUserName(token);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            } catch (UsernameNotFoundException e) {
+                throw new UsernameNotFoundException(
+                        "Token is invalid or expired.");
+            }
         }
         filterChain.doFilter(request, response);
     }
 
     private String getToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            return bearerToken.substring(7);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            String tokenValue = bearerToken.substring(7);
+            if (StringUtils.hasText(tokenValue)) {
+                return tokenValue;
+            }
         }
         return null;
     }

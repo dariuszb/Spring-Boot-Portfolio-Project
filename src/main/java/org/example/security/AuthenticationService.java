@@ -16,7 +16,7 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
-    public UserLoginResponseDto authenticate(UserLoginRequestDto request) {
+    public UserLoginResponseDto authenticateAndGenerateToken(UserLoginRequestDto request) {
 
         Authentication authenticate = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
