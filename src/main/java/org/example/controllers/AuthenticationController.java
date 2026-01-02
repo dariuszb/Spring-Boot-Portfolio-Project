@@ -26,7 +26,8 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/registration")
-    @Operation(summary = "Registration of user", description = "Registration of user")
+    @Operation(summary = "Registration of user",
+            description = "Registration of user")
     public UserResponseDto registerUser(@RequestBody @Valid
                                             UserRegistrationRequestDto userRegistrationRequestDto)
             throws RegistrationException {
@@ -34,7 +35,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public UserLoginResponseDto login(@RequestBody UserLoginRequestDto userLoginRequestDto) {
-        return authenticationService.authenticate(userLoginRequestDto);
+    @Operation(summary = "Authentication of user",
+            description = "Authentication of user and generate token")
+    public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto userLoginRequestDto) {
+        return authenticationService.authenticateAndGenerateToken(userLoginRequestDto);
     }
 }
