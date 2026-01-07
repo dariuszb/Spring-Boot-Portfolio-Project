@@ -59,11 +59,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(JwtAuthenticationException.class)
-    public ResponseEntity<Object> handleJwtAuthenticationException(RegistrationException ex) {
+    public ResponseEntity<Object> handleJwtAuthenticationException(JwtAuthenticationException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", "Registration failed");
+        body.put("error", "JWT authentication failed");
         body.put("message", ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
