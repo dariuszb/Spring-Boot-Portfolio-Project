@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDto;
 import org.example.dto.bookdto.BookSearchParametersDto;
 import org.example.dto.bookdto.CreateBookRequestDto;
-import org.example.service.BookService;
+import org.example.service.bookservice.BookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;

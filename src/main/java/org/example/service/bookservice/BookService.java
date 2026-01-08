@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.bookservice;
 
 import java.util.List;
 import org.example.dto.bookdto.BookDto;
