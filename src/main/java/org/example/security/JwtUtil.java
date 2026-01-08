@@ -7,7 +7,6 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.function.Function;
 import org.example.exceptions.JwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -56,19 +55,17 @@ public class JwtUtil {
     }
 
     public String getUserName(String token) {
-        return getClaimsFromToken(token, Claims::getSubject);
+        return getClaimsFromToken(token).getSubject();
     }
 
-    private <T> T getClaimsFromToken(String token,
-                                     Function<Claims, T> claimsResolver) {
+    private Claims getClaimsFromToken(String token) {
         try {
-            final Claims claims = Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(secret)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
 
-            return claimsResolver.apply(claims);
         } catch (io.jsonwebtoken.ExpiredJwtException
                  | io.jsonwebtoken.UnsupportedJwtException
                  | io.jsonwebtoken.MalformedJwtException

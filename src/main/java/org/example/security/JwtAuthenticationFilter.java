@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.example.exceptions.JwtAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,19 +33,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = getToken(request);
 
-        try {
-            if (token != null && jwtUtil.isValidToken(token)
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
-
+        if (token != null) {
+            try {
                 String userName = jwtUtil.getUserName(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            } catch (UsernameNotFoundException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
-        } catch (UsernameNotFoundException e) {
-            throw new JwtAuthenticationException(
-                        "Token is invalid or expired.");
         }
 
         filterChain.doFilter(request, response);
