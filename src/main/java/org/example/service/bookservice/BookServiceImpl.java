@@ -1,6 +1,9 @@
-package org.example.service;
+package org.example.service.bookservice;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDto;
 import org.example.dto.bookdto.BookSearchParametersDto;
@@ -8,7 +11,9 @@ import org.example.dto.bookdto.CreateBookRequestDto;
 import org.example.exceptions.EntityNotFoundException;
 import org.example.mappers.BookMapper;
 import org.example.model.Book;
+import org.example.model.Category;
 import org.example.repository.book.BookRepository;
+import org.example.repository.category.CategoryRepository;
 import org.example.repository.user.SpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,10 +28,17 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final SpecificationBuilder<Book> bookSpecificationBuilder;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public BookDto createBook(CreateBookRequestDto createBookRequestDto) {
         Book book = bookMapper.toEntity(createBookRequestDto);
+        Set<Category> collect = createBookRequestDto.categoriesIds().stream()
+                .map(categoryRepository::findById)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toSet());
+        book.setCategories(collect);
+
         Book savedBook = bookRepository.save(book);
         return bookMapper.toDto(savedBook);
     }
@@ -59,6 +71,11 @@ public class BookServiceImpl implements BookService {
         book.setAuthor(updateBookRequestDto.author());
         book.setPrice(updateBookRequestDto.price());
         book.setIsbn(updateBookRequestDto.isbn());
+        Set<Category> collect = updateBookRequestDto.categoriesIds().stream()
+                .map(categoryRepository::findById)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toSet());
+        book.setCategories(collect);
         book.setDescription(updateBookRequestDto.description());
         book.setCoverImage(updateBookRequestDto.coverImage());
         bookRepository.save(book);

@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.userservice;
 
 import org.example.dto.userdto.UserRegistrationRequestDto;
 import org.example.dto.userdto.UserResponseDto;
