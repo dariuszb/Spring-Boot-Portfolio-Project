@@ -13,13 +13,13 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-@Data
+@Getter
+@Setter
 @Entity
 @SQLDelete(sql = "UPDATE books set is_deleted = true WHERE id=?")
 @Where(clause = "is_deleted=false")
@@ -44,8 +44,6 @@ public class Book {
     private String description;
     private String coverImage;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "book_categories",
             joinColumns = @JoinColumn(name = "book_id"),

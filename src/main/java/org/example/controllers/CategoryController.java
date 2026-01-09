@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDtoWithoutCategoryIds;
 import org.example.dto.categorydto.CategoryDto;
+import org.example.dto.categorydto.CreateCategoryDto;
 import org.example.service.categoryservice.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,14 +35,13 @@ public class CategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create new category", description = "Create new category")
-    public CategoryDto createCategory(@RequestBody @Valid CategoryDto categoryDto) {
-        return categoryService.save(categoryDto);
+    public CategoryDto createCategory(@RequestBody @Valid CreateCategoryDto createCategoryDto) {
+        return categoryService.save(createCategoryDto);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping
     @Operation(summary = "Find all categories", description = "Find all categories")
-
     public Page<CategoryDto> getAll(Pageable pageable) {
         return categoryService.findAll(pageable);
     }
@@ -55,6 +55,7 @@ public class CategoryController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update category's properties",
             description = "Update category's properties")
 
@@ -66,22 +67,18 @@ public class CategoryController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete category by id", description = "Delete category by id")
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
 
     public void deleteCategory(@PathVariable Long id) {
-        categoryService.delete(id);
+        categoryService.deleteById(id);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{id}/books")
-    @Operation(summary = "Get books without categories",
-            description = "Get books without categories")
-    public List<BookDtoWithoutCategoryIds> getBooksByCategory(@PathVariable Long id) {
+    @Operation(summary = "Get books with chosen category id",
+            description = "Get books with chosen category id")
+    public List<BookDtoWithoutCategoryIds> getBooksByCategoryId(@PathVariable Long id) {
         return categoryService.getBookWithoutCategories(id);
     }
 
-    /*
-    Add Pagination, Sorting, and Swagger to all controllers you have.
-    Remember to use Liquibase and implement the soft delete approach.
-    */
 }

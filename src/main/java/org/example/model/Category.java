@@ -7,12 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Data
+@Getter
+@Setter
 @SQLDelete(sql = "UPDATE categories set is_deleted = true WHERE id=?")
 @Where(clause = "is_deleted=false")
 @Table(name = "categories")
@@ -29,10 +31,6 @@ public class Category {
 
     @Column(nullable = false)
     private boolean isDeleted = false;
-
-    public Category(Long id) {
-        this.id = id;
-    }
 
     public Category() {
     }

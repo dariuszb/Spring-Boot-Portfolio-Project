@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDtoWithoutCategoryIds;
 import org.example.dto.categorydto.CategoryDto;
+import org.example.dto.categorydto.CreateCategoryDto;
 import org.example.exceptions.EntityNotFoundException;
 import org.example.mappers.BookMapper;
 import org.example.mappers.CategoryMapper;
@@ -29,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryDto> list = categoryRepository.findAll(pageable).stream()
                 .map(categoryMapper::toDto)
                 .toList();
-        return new PageImpl<>(list);
+        return new PageImpl<>(list, pageable, categoryRepository.count());
     }
 
     @Override
@@ -40,31 +41,50 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto save(CategoryDto categoryDto) {
-        return categoryMapper.toDto(categoryRepository.save(categoryMapper.toEntity(categoryDto)));
+    public CategoryDto save(CreateCategoryDto createCategoryDto) {
+        return categoryMapper.toDto(categoryRepository.save(
+                categoryMapper.toEntity(createCategoryDto)));
     }
 
     @Override
     public CategoryDto update(Long id, CategoryDto categoryDto) {
-        Category category = categoryRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Category with id " + id + " doesn't exist"));
-        category.setName(categoryDto.getName());
-        category.setDescription(categoryDto.getDescription());
-        categoryRepository.save(category);
-        return categoryMapper.toDto(category);
+        if (categoryRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException(
+                    "Category with id " + id + " doesn't exist");
+        }
+        Category updatedCategory = updateCategory(id, categoryDto);
+        Category updatedCategoryResponse =
+                    categoryRepository.findById(updatedCategory.getId()).get();
+        return categoryMapper.toDto(updatedCategoryResponse);
+
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
+        if (categoryRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException(
+                    "Category with id " + id + " doesn't exist");
+        }
         categoryRepository.deleteById(id);
     }
 
     @Override
     public List<BookDtoWithoutCategoryIds> getBookWithoutCategories(Long id) {
-        List<BookDtoWithoutCategoryIds> list = bookRepository.findAllByCategoryId(id).stream()
+        if (categoryRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException(
+                    "Category with id " + id + " doesn't exist");
+        }
+        return bookRepository.findAllByCategoryId(id).stream()
                 .map(bookMapper::toDtoWithoutCategories)
                 .toList();
-        return list;
-
     }
+
+    private Category updateCategory(Long id, CategoryDto categoryDto) {
+        Category category = categoryRepository.findById(id).get();
+        category.setName(categoryDto.getName());
+        category.setDescription(categoryDto.getDescription());
+        categoryRepository.save(category);
+        return category;
+    }
+
 }
