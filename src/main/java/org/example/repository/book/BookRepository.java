@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface BookRepository extends JpaRepository<Book, Long>,
         JpaSpecificationExecutor<Book> {
 
-    @Query(value = "SELECT b FROM Book b JOIN b.categories c "
+    @Query(value = "SELECT DISTINCT b FROM Book b JOIN b.categories c "
             + "WHERE c.id = :categoryId")
     List<Book> findAllByCategoryId(Long categoryId);
 

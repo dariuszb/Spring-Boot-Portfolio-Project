@@ -1,7 +1,6 @@
 package org.example.service.bookservice;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +32,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto createBook(CreateBookRequestDto createBookRequestDto) {
         Book book = bookMapper.toEntity(createBookRequestDto);
-        Set<Category> collect = createBookRequestDto.categoriesIds().stream()
-                .map(categoryRepository::findById)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toSet());
-        book.setCategories(collect);
 
+        Set<Category> collect = fromIdToCategory(
+                createBookRequestDto.categoriesIds());
+        book.setCategories(collect);
         Book savedBook = bookRepository.save(book);
         return bookMapper.toDto(savedBook);
     }
@@ -48,7 +45,7 @@ public class BookServiceImpl implements BookService {
         List<BookDto> list = bookRepository.findAll(pageable).stream()
                 .map(bookMapper::toDto)
                 .toList();
-        return new PageImpl<>(list);
+        return new PageImpl<>(list, pageable, bookRepository.count());
     }
 
     @Override
@@ -64,22 +61,22 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public CreateBookRequestDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
+    public BookDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
         Book book = bookRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Book with id " + id + " not found"));
         book.setTitle(updateBookRequestDto.title());
         book.setAuthor(updateBookRequestDto.author());
         book.setPrice(updateBookRequestDto.price());
         book.setIsbn(updateBookRequestDto.isbn());
-        Set<Category> collect = updateBookRequestDto.categoriesIds().stream()
-                .map(categoryRepository::findById)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toSet());
+
+        Set<Category> collect = fromIdToCategory(
+                updateBookRequestDto.categoriesIds());
+
         book.setCategories(collect);
         book.setDescription(updateBookRequestDto.description());
         book.setCoverImage(updateBookRequestDto.coverImage());
-        bookRepository.save(book);
-        return updateBookRequestDto;
+        Book saved = bookRepository.save(book);
+        return bookMapper.toDto(saved);
 
     }
 
@@ -91,5 +88,13 @@ public class BookServiceImpl implements BookService {
                 .stream()
                 .map(bookMapper::toDto)
                 .toList();
+    }
+
+    private Set<Category> fromIdToCategory(Set<Long> ids) {
+        return ids.stream()
+                .map(e -> categoryRepository.findById(e).orElseThrow(
+                        () -> new EntityNotFoundException("Category with "
+                        + "id " + e + "doesn't exist")))
+                .collect(Collectors.toSet());
     }
 }
