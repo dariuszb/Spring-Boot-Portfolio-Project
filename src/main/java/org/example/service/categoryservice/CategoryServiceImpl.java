@@ -1,5 +1,6 @@
 package org.example.service.categoryservice;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDtoWithoutCategoryIds;
@@ -30,61 +31,59 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryDto> list = categoryRepository.findAll(pageable).stream()
                 .map(categoryMapper::toDto)
                 .toList();
-        return new PageImpl<>(list, pageable, categoryRepository.count());
+        return new PageImpl<>(list);
     }
 
     @Override
     public CategoryDto getById(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Category with id " + id + " doesn't exist"));
+        isCategoryWithIdExist(id);
+        Category category = categoryRepository.findById(id).get();
         return categoryMapper.toDto(category);
     }
 
+    @Transactional
     @Override
     public CategoryDto save(CreateCategoryDto createCategoryDto) {
         return categoryMapper.toDto(categoryRepository.save(
                 categoryMapper.toEntity(createCategoryDto)));
     }
 
+    @Transactional
     @Override
     public CategoryDto update(Long id, CategoryDto categoryDto) {
-        if (categoryRepository.findById(id).isEmpty()) {
-            throw new EntityNotFoundException(
-                    "Category with id " + id + " doesn't exist");
-        }
+        isCategoryWithIdExist(id);
         Category updatedCategory = updateCategory(id, categoryDto);
-        Category updatedCategoryResponse =
-                    categoryRepository.findById(updatedCategory.getId()).get();
-        return categoryMapper.toDto(updatedCategoryResponse);
-
+        return categoryMapper.toDto(updatedCategory);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
-        if (categoryRepository.findById(id).isEmpty()) {
-            throw new EntityNotFoundException(
-                    "Category with id " + id + " doesn't exist");
-        }
+        isCategoryWithIdExist(id);
         categoryRepository.deleteById(id);
     }
 
     @Override
     public List<BookDtoWithoutCategoryIds> getBookWithoutCategories(Long id) {
-        if (categoryRepository.findById(id).isEmpty()) {
-            throw new EntityNotFoundException(
-                    "Category with id " + id + " doesn't exist");
-        }
+        isCategoryWithIdExist(id);
         return bookRepository.findAllByCategoryId(id).stream()
-                .map(bookMapper::toDtoWithoutCategories)
-                .toList();
+                    .map(bookMapper::toDtoWithoutCategories)
+                    .toList();
+
     }
 
     private Category updateCategory(Long id, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(id).get();
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
-        categoryRepository.save(category);
-        return category;
+        return categoryRepository.save(category);
+    }
+
+    private void isCategoryWithIdExist(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Category with id " + id + " doesn't exist");
+        }
     }
 
 }
