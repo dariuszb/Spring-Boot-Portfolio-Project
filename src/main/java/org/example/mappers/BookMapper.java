@@ -28,4 +28,5 @@ public interface BookMapper {
                 .collect(Collectors.toSet());
         bookDto.setCategoriesIds(longSet);
     }
+
 }

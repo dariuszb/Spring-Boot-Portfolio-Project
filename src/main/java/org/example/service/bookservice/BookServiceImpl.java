@@ -1,8 +1,11 @@
 package org.example.service.bookservice;
 
+import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDto;
 import org.example.dto.bookdto.BookSearchParametersDto;
@@ -29,10 +32,10 @@ public class BookServiceImpl implements BookService {
     private final SpecificationBuilder<Book> bookSpecificationBuilder;
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     @Override
     public BookDto createBook(CreateBookRequestDto createBookRequestDto) {
         Book book = bookMapper.toEntity(createBookRequestDto);
-
         Set<Category> collect = fromIdToCategory(
                 createBookRequestDto.categoriesIds());
         book.setCategories(collect);
@@ -45,38 +48,29 @@ public class BookServiceImpl implements BookService {
         List<BookDto> list = bookRepository.findAll(pageable).stream()
                 .map(bookMapper::toDto)
                 .toList();
-        return new PageImpl<>(list, pageable, bookRepository.count());
+        return new PageImpl<>(list);
     }
 
     @Override
     public BookDto getBookById(Long id) {
-        Book book = bookRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Book with id " + id + " not found"));
+        isBookWithIdExist(id);
+        Book book = bookRepository.findById(id).get();
         return bookMapper.toDto(book);
     }
 
     @Override
     public void deleteBookById(Long id) {
+        isBookWithIdExist(id);
         bookRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public BookDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
-        Book book = bookRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Book with id " + id + " not found"));
-        book.setTitle(updateBookRequestDto.title());
-        book.setAuthor(updateBookRequestDto.author());
-        book.setPrice(updateBookRequestDto.price());
-        book.setIsbn(updateBookRequestDto.isbn());
-
-        Set<Category> collect = fromIdToCategory(
-                updateBookRequestDto.categoriesIds());
-
-        book.setCategories(collect);
-        book.setDescription(updateBookRequestDto.description());
-        book.setCoverImage(updateBookRequestDto.coverImage());
-        Book saved = bookRepository.save(book);
-        return bookMapper.toDto(saved);
+        isBookWithIdExist(id);
+        Book bookToUpdate = bookRepository.findById(id).get();
+        Book updatedBook = updateBook(bookToUpdate, updateBookRequestDto);
+        return bookMapper.toDto(updatedBook);
 
     }
 
@@ -91,10 +85,50 @@ public class BookServiceImpl implements BookService {
     }
 
     private Set<Category> fromIdToCategory(Set<Long> ids) {
-        return ids.stream()
-                .map(e -> categoryRepository.findById(e).orElseThrow(
-                        () -> new EntityNotFoundException("Category with "
-                        + "id " + e + "doesn't exist")))
-                .collect(Collectors.toSet());
+        List<Category> foundCategories = categoryRepository.findAllById(ids);
+        List<Long> listFromRepo = foundCategories.stream()
+                .map(Category::getId).toList();
+        List<Long> input = ids.stream().toList();
+        List<Long> notFoundIds = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+            if (!listFromRepo.contains(input.get(i))) {
+                notFoundIds.add(input.get(i));
+            }
+        }
+        if (notFoundIds.size() == 1) {
+            throw new EntityNotFoundException(
+                    "Category with id " + input.get(0) + " not found");
+        }
+        if (notFoundIds.size() > 1) {
+            throw new EntityNotFoundException(
+                    "Categories with ids " + notFoundIds + " don't exist");
+        }
+        return new HashSet<>(foundCategories);
+    }
+
+    private Book updateBook(Book book, CreateBookRequestDto createBookRequestDto) {
+        book.setTitle(createBookRequestDto.title());
+        book.setAuthor(createBookRequestDto.author());
+        book.setIsbn(createBookRequestDto.isbn());
+        book.setPrice(createBookRequestDto.price());
+        book.setDescription(createBookRequestDto.description());
+        book.setCoverImage(createBookRequestDto.coverImage());
+
+        if (createBookRequestDto.categoriesIds().isEmpty()) {
+            book.setCategories(Collections.emptySet());
+        } else {
+            Set<Category> collect = fromIdToCategory(
+                    createBookRequestDto.categoriesIds());
+
+            book.setCategories(collect);
+        }
+        return bookRepository.save(book);
+    }
+
+    private void isBookWithIdExist(Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Book with id " + id + " not found");
+        }
     }
 }
