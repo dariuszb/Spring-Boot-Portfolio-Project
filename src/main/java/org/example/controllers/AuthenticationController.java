@@ -10,7 +10,7 @@ import org.example.dto.userdto.UserRegistrationRequestDto;
 import org.example.dto.userdto.UserResponseDto;
 import org.example.exceptions.RegistrationException;
 import org.example.security.AuthenticationService;
-import org.example.service.UserService;
+import org.example.service.userservice.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

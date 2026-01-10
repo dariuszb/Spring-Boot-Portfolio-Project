@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDto;
 import org.example.dto.bookdto.BookSearchParametersDto;
 import org.example.dto.bookdto.CreateBookRequestDto;
-import org.example.service.BookService;
+import org.example.service.bookservice.BookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -64,8 +64,9 @@ public class BookController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update book's properties", description = "Update book's properties")
-    public CreateBookRequestDto updateBook(@PathVariable Long id, @RequestBody @Valid
+    public BookDto updateBook(@PathVariable Long id, @RequestBody @Valid
             CreateBookRequestDto updateBookRequestDto) {
         return bookService.updateBookById(id, updateBookRequestDto);
     }
