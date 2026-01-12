@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDtoWithoutCategoryIds;
 import org.example.dto.categorydto.CategoryDto;
-import org.example.dto.categorydto.CreateCategoryDto;
 import org.example.service.categoryservice.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,29 +30,29 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create new category", description = "Create new category")
-    public CategoryDto createCategory(@RequestBody @Valid CreateCategoryDto createCategoryDto) {
-        return categoryService.save(createCategoryDto);
+    public CategoryDto createCategory(@RequestBody @Valid CategoryDto categoryDto) {
+        return categoryService.save(categoryDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     @Operation(summary = "Find all categories", description = "Find all categories")
     public Page<CategoryDto> getAll(Pageable pageable) {
         return categoryService.findAll(pageable);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{id}")
     @Operation(summary = "Get category by id", description = "Get category by id")
     public CategoryDto getCategoryById(@PathVariable Long id) {
         return categoryService.getById(id);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update category's properties",
@@ -64,7 +63,7 @@ public class CategoryController {
         return categoryService.update(id, categoryDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete category by id", description = "Delete category by id")
     @DeleteMapping("/{id}")
@@ -73,7 +72,7 @@ public class CategoryController {
         categoryService.deleteById(id);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{id}/books")
     @Operation(summary = "Get books with chosen category id",
             description = "Get books with chosen category id")

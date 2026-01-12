@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.bookdto.BookDtoWithoutCategoryIds;
 import org.example.dto.categorydto.CategoryDto;
-import org.example.dto.categorydto.CreateCategoryDto;
 import org.example.exceptions.EntityNotFoundException;
 import org.example.mappers.BookMapper;
 import org.example.mappers.CategoryMapper;
@@ -13,7 +12,6 @@ import org.example.model.Category;
 import org.example.repository.book.BookRepository;
 import org.example.repository.category.CategoryRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +26,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Page<CategoryDto> findAll(Pageable pageable) {
-        List<CategoryDto> list = categoryRepository.findAll(pageable).stream()
-                .map(categoryMapper::toDto)
-                .toList();
-        return new PageImpl<>(list);
+        return categoryRepository.findAll(pageable)
+                .map(categoryMapper::toDto);
     }
 
     @Override
@@ -43,9 +39,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public CategoryDto save(CreateCategoryDto createCategoryDto) {
+    public CategoryDto save(CategoryDto categoryDto) {
         return categoryMapper.toDto(categoryRepository.save(
-                categoryMapper.toEntity(createCategoryDto)));
+                categoryMapper.toEntity(categoryDto)));
     }
 
     @Transactional
