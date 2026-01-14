@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-shoppingcarts
+      author: dbereszynski
+      changes:
+        - insert:
+            tableName: shoppingcarts
+            columns:
+              - column: {name: user_id,
+                         value: "1"}
+        - insert:
+            tableName: shoppingcarts
+            columns:
+              - column: { name: user_id,
+                          value: "2"}
+        - insert:
+            tableName: shoppingcarts
+            columns:
+              - column: { name: user_id,
+                          value: "3" }
