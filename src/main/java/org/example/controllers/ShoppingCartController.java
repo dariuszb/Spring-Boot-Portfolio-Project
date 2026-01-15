@@ -34,11 +34,9 @@ public class ShoppingCartController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     @Operation(summary = "Get user's shoppingcart", description = "Get user's shoppingcart")
-
     public ShoppingCartDto getShoppingCart() {
         return shoppingCartService.get();
     }
-    //===============================================================================
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
@@ -48,24 +46,22 @@ public class ShoppingCartController {
             @RequestBody @Valid CreateCartItemDto createItemDto) {
         return cartItemService.addBookToShoppingCart(createItemDto);
     }
-    //===============================================================================
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    @PutMapping("/cart-items/{cartItemId}`")
+    @PutMapping("/cart-items/{cartItemId}")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update cart item's properties",
             description = "Update cart item's properties")
-
     public CartItemDto updateCartItemById(@PathVariable Long cartItemId,
-                                          @RequestBody CartItemDto cartItemDto) {
-        return cartItemService.update(cartItemId, cartItemDto);
+                                          @RequestBody @Valid CreateCartItemDto createCartItemDto) {
+        return cartItemService.update(cartItemId, createCartItemDto);
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete book from the cart",
             description = "Delete book from the cart")
-    @DeleteMapping("/cart-items/{cartItemId}`")
-
+    @DeleteMapping("/cart-items/{cartItemId}")
     public void deleteCartItemById(@PathVariable Long cartItemId) {
         cartItemService.deleteItemById(cartItemId);
     }
