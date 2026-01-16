@@ -13,12 +13,15 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "shopping_carts")
 public class ShoppingCart {
 
@@ -32,7 +35,6 @@ public class ShoppingCart {
     private User user;
 
     @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "shoppingCart",
             cascade = CascadeType.ALL,
             orphanRemoval = true)

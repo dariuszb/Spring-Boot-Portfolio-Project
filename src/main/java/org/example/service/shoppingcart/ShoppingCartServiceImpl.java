@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Positive;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,8 +21,9 @@ import org.example.model.ShoppingCart;
 import org.example.model.User;
 import org.example.repository.book.BookRepository;
 import org.example.repository.cartitem.CartItemRepository;
-import org.example.repository.shoppingcartrepository.ShoppingCartRepository;
+import org.example.repository.shoppingcart.ShoppingCartRepository;
 import org.example.repository.user.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,10 +42,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public ShoppingCartDto get() {
 
-        ShoppingCart shoppingCartRepositoryByEmail =
+        ShoppingCart userShoppingCart =
                 shoppingCartRepository.findByUser(getPrincipalsOfUser());
 
-        return mapToDto(shoppingCartRepositoryByEmail);
+        return mapToDto(userShoppingCart);
 
     }
 
@@ -80,13 +80,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ShoppingCartDto update(@Positive Long id, UpdateCartItemDto updateCartItemDto) {
         isCartItemExist(id);
         ShoppingCart userShoppingCart = getShoppingCartByItemId(id);
-        Set<CartItem> cartItems = userShoppingCart.getCartItems();
-        for (CartItem cartItem : cartItems) {
-            if (cartItem.getId().equals(id)) {
-                cartItem.setQuantity(updateCartItemDto.quantity());
-                cartItemRepository.save(cartItem);
-                shoppingCartRepository.save(userShoppingCart);
+
+        if (userShoppingCart.getUser().getId().equals(getUserIdByAuthentication())) {
+            Set<CartItem> cartItems = userShoppingCart.getCartItems();
+            for (CartItem cartItem : cartItems) {
+                if (cartItem.getId().equals(id)) {
+                    cartItem.setQuantity(updateCartItemDto.quantity());
+                    cartItemRepository.save(cartItem);
+                    shoppingCartRepository.save(userShoppingCart);
+                    break;
+                }
             }
+        } else {
+            throw new AccessDeniedException("Access denied");
         }
 
         return get();
@@ -97,11 +103,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ShoppingCartDto deleteItemById(Long cartItemId) {
         isCartItemExist(cartItemId);
         ShoppingCart shoppingCartByItemId = getShoppingCartByItemId(cartItemId);
-        shoppingCartByItemId.getCartItems().remove(cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Item not found"
-                )));
-        shoppingCartRepository.save(shoppingCartByItemId);
+        if (shoppingCartByItemId.getUser().getId().equals(getUserIdByAuthentication())) {
+            shoppingCartByItemId.getCartItems().remove(cartItemRepository.findById(cartItemId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Item not found"
+                    )));
+            shoppingCartRepository.save(shoppingCartByItemId);
+        } else {
+            throw new AccessDeniedException("Access denied");
+
+        }
         return get();
     }
 
@@ -129,7 +140,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         itemEntity.setShoppingCart(shoppingCart);
         Book chosenBook = bookRepository.findById(
                 createCartItemDto.bookId()).orElseThrow(
-                    () -> new NoSuchElementException("Book not found")
+                    () -> new EntityNotFoundException("Book not found")
         );
 
         itemEntity.setBook(chosenBook);

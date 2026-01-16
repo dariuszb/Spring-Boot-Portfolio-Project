@@ -1,5 +1,6 @@
 package org.example.service.userservice;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.userdto.UserRegistrationRequestDto;
 import org.example.dto.userdto.UserResponseDto;
@@ -8,8 +9,10 @@ import org.example.exceptions.RegistrationException;
 import org.example.mappers.UserMapper;
 import org.example.model.Role;
 import org.example.model.RoleName;
+import org.example.model.ShoppingCart;
 import org.example.model.User;
 import org.example.repository.role.RoleRepository;
+import org.example.repository.shoppingcart.ShoppingCartRepository;
 import org.example.repository.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
 
+    @Transactional
     @Override
     public UserResponseDto register(UserRegistrationRequestDto userRegistrationRequestDto)
             throws RegistrationException {
@@ -38,6 +43,9 @@ public class UserServiceImpl implements UserService {
         user.getRoles().add(userRole);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUser(savedUser);
+        shoppingCartRepository.save(shoppingCart);
         return userMapper.toDto(savedUser);
     }
 
