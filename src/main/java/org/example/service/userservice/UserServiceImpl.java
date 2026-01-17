@@ -26,26 +26,14 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final ShoppingCartRepository shoppingCartRepository;
+    private final ShoppingCartFactory shoppingCartFactory;
 
     @Transactional
     @Override
     public UserResponseDto register(UserRegistrationRequestDto userRegistrationRequestDto)
             throws RegistrationException {
-        if (userRepository.findByEmail(userRegistrationRequestDto.getEmail()).isPresent()) {
-
-            throw new RegistrationException("Can't register user, cause "
-                    + "email already exists");
-        }
-        User user = userMapper.toEntity(userRegistrationRequestDto);
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Can't find ROLE_USER in database."));
-        user.getRoles().add(userRole);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User savedUser = userRepository.save(user);
-        ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setUser(savedUser);
-        shoppingCartRepository.save(shoppingCart);
+        isUserExist(userRegistrationRequestDto);
+        User savedUser = registerUser(userRegistrationRequestDto);
         return userMapper.toDto(savedUser);
     }
 
@@ -54,6 +42,29 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByEmail(email)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Can't find user"));
+                .orElseThrow(() -> new RegistrationException(
+                        "Can't find user"));
     }
+
+    private void isUserExist(UserRegistrationRequestDto userRegistrationRequestDto) {
+        if (userRepository.findByEmail(userRegistrationRequestDto.getEmail()).isPresent()) {
+
+            throw new RegistrationException("Can't register user, cause "
+                    + "email already exists");
+        }
+    }
+
+    private User registerUser(UserRegistrationRequestDto userRegistrationRequestDto) {
+        User user = userMapper.toEntity(userRegistrationRequestDto);
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Can't find ROLE_USER in database."));
+        user.getRoles().add(userRole);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        ShoppingCart shoppingCart = shoppingCartFactory.createShoppingCart(user);
+        userRepository.save(user);
+        shoppingCartRepository.save(shoppingCart);
+        return user;
+    }
+
 }

@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "ShoppingCartRepository management",
-        description = "Endpoints for ShoppingCartRepository management")
+@Tag(name = "Shopping Cart management",
+        description = "Endpoints for Shopping Cart management")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/cart")
@@ -57,11 +57,12 @@ public class ShoppingCartController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete book from the cart",
             description = "Delete book from the cart")
     @DeleteMapping("/cart-items/{cartItemId}")
-    public ShoppingCartDto deleteCartItemById(@PathVariable Long cartItemId) {
-        return shoppingCartService.deleteItemById(cartItemId);
+    public void deleteCartItemById(@PathVariable Long cartItemId) {
+        shoppingCartService.deleteItemById(cartItemId);
     }
 
 }
