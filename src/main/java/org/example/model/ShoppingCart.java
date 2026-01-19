@@ -21,11 +21,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "shopping_carts")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ShoppingCart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

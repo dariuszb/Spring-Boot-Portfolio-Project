@@ -8,7 +8,6 @@ import org.example.dto.cartitem.CreateCartItemDto;
 import org.example.dto.cartitem.UpdateCartItemDto;
 import org.example.dto.shoppingcart.ShoppingCartDto;
 import org.example.exceptions.EntityNotFoundException;
-import org.example.mappers.CartItemMapper;
 import org.example.mappers.ShoppingCartMapper;
 import org.example.model.Book;
 import org.example.model.CartItem;
@@ -16,7 +15,6 @@ import org.example.model.ShoppingCart;
 import org.example.repository.book.BookRepository;
 import org.example.repository.cartitem.CartItemRepository;
 import org.example.repository.shoppingcart.ShoppingCartRepository;
-import org.example.repository.user.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,8 +28,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartItemRepository cartItemRepository;
     private final BookRepository bookRepository;
-    private final UserRepository userRepository;
-    private final CartItemMapper cartItemMapper;
 
     @Override
     public ShoppingCartDto get() {
@@ -53,7 +49,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart userShoppingCart = shoppingCartRepository
                 .findByUserEmail(userNameByAuthentication)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "User not found"));
+                        "Shopping cart not found"));
 
         Optional<CartItem> cartItem = cartItemRepository
                 .findItemByProperBookIdAndShoppingCartId(
