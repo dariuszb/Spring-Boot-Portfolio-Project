@@ -14,12 +14,22 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/07-create-categories-table.yml
   - include:
-      file: db/changelog/changes/08-create-books-table.yml
+      file: db/changelog/changes/08-insert-categories-to-categories-table.yml
   - include:
-      file: db/changelog/changes/09-create-book_categories-table.yml
+      file: db/changelog/changes/09-create-books-table.yml
   - include:
-      file: db/changelog/changes/10-create-shopping_carts-table.yml
+      file: db/changelog/changes/10-insert-books-to-bookstable.yml
   - include:
-      file: db/changelog/changes/11-create-cart_items-table.yml
+      file: db/changelog/changes/11-create-book_categories-table.yml
   - include:
-      file: db/changelog/changes/12-insert-shopping_carts-into-shopping_carts-table.yml
+      file: db/changelog/changes/12-insert-categories-to-books-in-book_categories-table.yml
+  - include:
+      file: db/changelog/changes/13-create-cart_items-table.yml
+  - include:
+      file: db/changelog/changes/14-create-shopping_carts-table.yml
+  - include:
+      file: db/changelog/changes/15-insert-shopping_carts-into-shopping_carts-table.yml
+  - include:
+      file: db/changelog/changes/16-create-orders-table.yml
+  - include:
+      file: db/changelog/changes/17-create-order_items-table.yml
