@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-categories
+      author: dbereszynski
+      changes:
+        - insert:
+            tableName: categories
+            columns:
+              - column: {name: name,
+                         value: "novel"}
+              - column: { name: description,
+                          value: "novel" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: name,
+                          value: "crime story"}
+              - column: { name: description,
+                          value: "novel" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: name,
+                          value: "horror" }
+              - column: { name: description,
+                          value: "novel" }

@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-book
+      author: dbereszynski
+      changes:
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, value: "1" }
+              - column: { name: title, value: "Title1" }
+              - column: { name: author, value: "Author1" }
+              - column: { name: isbn, value: "123456789" }
+              - column: { name: price, value: "100" }
+              - column: { name: description, value: "description1" }
+              - column: { name: cover_image, value: "cover1" }
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, value: "2" }
+              - column: { name: title, value: "Title2" }
+              - column: { name: author, value: "Author2" }
+              - column: { name: isbn, value: "123456790" }
+              - column: { name: price, value: "150" }
+              - column: { name: description, value: "description2" }
+              - column: { name: cover_image, value: "cover2" }
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, value: "3" }
+              - column: { name: title, value: "Title3" }
+              - column: { name: author, value: "Author3" }
+              - column: { name: isbn, value: "123456791" }
+              - column: { name: price, value: "200" }
+              - column: { name: description, value: "description3" }
+              - column: { name: cover_image, value: "cover3" }
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, value: "4" }
+              - column: { name: title, value: "Title4" }
+              - column: { name: author, value: "Author4" }
+              - column: { name: isbn, value: "123456792" }
+              - column: { name: price, value: "250" }
+              - column: { name: description, value: "description4" }
+              - column: { name: cover_image, value: "cover4" }
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, value: "5" }
+              - column: { name: title, value: "Title5" }
+              - column: { name: author, value: "Author5" }
+              - column: { name: isbn, value: "123456793" }
+              - column: { name: price, value: "300" }
+              - column: { name: description, value: "description5" }
+              - column: { name: cover_image, value: "cover5" }
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, value: "6" }
+              - column: { name: title, value: "Title6" }
+              - column: { name: author, value: "Author6" }
+              - column: { name: isbn, value: "123456794" }
+              - column: { name: price, value: "350" }
+              - column: { name: description, value: "description6" }
+              - column: { name: cover_image, value: "cover6" }
