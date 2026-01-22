@@ -23,23 +23,6 @@ public interface OrderItemMapper {
                 .map(this::toDto)
                 .collect(Collectors.toSet());
     }
-    /*
 
-}
-
-    /*
-    @Named("setMapper")
-    default Set<OrderItem> toOrderItemSet (Set<CartItem> cartItems) {
-        return cartItems.stream()
-                .map(this::fromCartItemToOrderItem)
-                .collect(Collectors.toSet());
-
-    }
-    @Name("getTotalCost")
-    default BigDecimal getTotalCost(Set<OrderItem> orderItems) {
-        return orderItems.stream()
-                .map(OrderItem::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }*/
 }
 

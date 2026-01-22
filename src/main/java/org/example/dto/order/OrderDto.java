@@ -11,7 +11,7 @@ import org.example.model.enums.Status;
 public class OrderDto {
 
     private Long id;
-    private String userId;
+    private Long userId;
     private Set<OrderItemDto> orderItems; //private Set<OrderItemDto> orderItems;
     private LocalDateTime orderDate;
     private BigDecimal total;

@@ -42,8 +42,8 @@ public class OrderController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Add orderItem to order",
-            description = "Add orderItem to order")
+    @Operation(summary = "Place an order",
+            description = "Place an order")
     public OrderDto placeAnOrder(
             @RequestBody @Valid CreateOrderDto createOrder) {
         return orderService.placeAnOrder(createOrder);
