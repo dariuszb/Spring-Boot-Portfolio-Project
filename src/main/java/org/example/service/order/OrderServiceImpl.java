@@ -1,5 +1,6 @@
 package org.example.service.order;
 
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.example.model.enums.Status;
 import org.example.repository.order.OrderRepository;
 import org.example.repository.orderitem.OrderItemRepository;
 import org.example.repository.shoppingcart.ShoppingCartRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
 
     @Override
+    @Transactional
     public OrderDto placeAnOrder(CreateOrderDto createOrder) {
 
         String userNameByAuthentication = getUserNameByAuthentication();
@@ -65,9 +68,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto updateOrderStatus(Long id,
                                       UpdateOrderStatusDto updateOrderStatusDto) {
-        Status status = Status.valueOf(updateOrderStatusDto.getCurrentStatus().toUpperCase());
+        Status status = updateOrderStatusDto.getStatus();
         if (List.of(Status.values()).contains(status)) {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(
@@ -95,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderItemDto getItemFromOrder(Long orderId, Long itemId) {
         isOrderBelongToAuthUser(orderId);
-        return orderItemMapper.toDto(orderRepository.getItemFromOrder(orderId, itemId));
+        return orderItemMapper.toDto(orderItemRepository.getItemFromOrder(orderId, itemId));
     }
 
     private OrderDto createOrderCart(ShoppingCart shoppingCart,
@@ -106,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderDate(LocalDateTime.now());
         order.setShippingAddress(createOrderDto.shippingAddress());
         order.setTotal(BigDecimal.ZERO);
-        order.setStatus(Status.PENDING);//by default
+        order.setStatus(Status.DELIVERED);
 
         orderRepository.save(order);
 
@@ -119,7 +123,8 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderItems(collect);
 
         order.setTotal(collect.stream()
-                        .map(OrderItem::getPrice)
+                        .map(m -> m.getPrice().multiply(
+                                BigDecimal.valueOf(m.getQuantity())))
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         orderRepository.save(order);
@@ -129,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderItem fromCartItemToOrderItem(Order order, CartItem cartItem) {
-        OrderItem orderItem = new OrderItem(); //czy musi być nowe?
+        OrderItem orderItem = new OrderItem();
         orderItem.setQuantity(cartItem.getQuantity());
         orderItem.setBook(cartItem.getBook());
         orderItem.setPrice(cartItem.getBook().getPrice());
@@ -148,8 +153,9 @@ public class OrderServiceImpl implements OrderService {
     private void isOrderBelongToAuthUser(Long orderId) {
         if (!orderRepository.getUserEmailByOrderId(orderId)
                 .equals(getUserNameByAuthentication())) {
-            throw new EntityNotFoundException(
-                    "Order with id " + orderId + " not found");
+            throw new AccessDeniedException(
+                    "Order with id " + orderId + " for"
+                            + " authenticated user was not found");
         }
     }
 
