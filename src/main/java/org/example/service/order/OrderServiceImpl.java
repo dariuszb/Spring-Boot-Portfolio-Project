@@ -72,16 +72,15 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto updateOrderStatus(Long id,
                                       UpdateOrderStatusDto updateOrderStatusDto) {
         Status status = updateOrderStatusDto.getStatus();
-        if (List.of(Status.values()).contains(status)) {
-            Order order = orderRepository.findById(id)
+
+        Order order = orderRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Order with id " + id + " not found"
                     ));
-            order.setStatus(status);
+        order.setStatus(status);
 
-            return orderMapper.toDto(orderRepository.save(order));
-        }
-        throw new RuntimeException("Invalid status " + status);
+        return orderMapper.toDto(orderRepository.save(order));
+
     }
 
     @Override
@@ -110,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderDate(LocalDateTime.now());
         order.setShippingAddress(createOrderDto.shippingAddress());
         order.setTotal(BigDecimal.ZERO);
-        order.setStatus(Status.DELIVERED);
+        order.setStatus(Status.PENDING);
 
         orderRepository.save(order);
 
