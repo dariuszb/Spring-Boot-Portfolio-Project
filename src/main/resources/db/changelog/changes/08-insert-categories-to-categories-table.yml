@@ -16,11 +16,11 @@ databaseChangeLog:
               - column: { name: name,
                           value: "crime story"}
               - column: { name: description,
-                          value: "novel" }
+                          value: "crime story" }
         - insert:
             tableName: categories
             columns:
               - column: { name: name,
                           value: "horror" }
               - column: { name: description,
-                          value: "novel" }
+                          value: "horror" }

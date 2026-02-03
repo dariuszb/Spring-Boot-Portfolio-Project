@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -24,6 +25,7 @@ import org.hibernate.annotations.Where;
 @SQLDelete(sql = "UPDATE books set is_deleted = true WHERE id=?")
 @Where(clause = "is_deleted=false")
 @Table(name = "books")
+@Accessors(chain = true)
 public class Book {
 
     @Id
