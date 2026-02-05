@@ -1,0 +1,1 @@
+UPDATE categories SET name = 'crime story', description = 'crime story' WHERE id = 2;
