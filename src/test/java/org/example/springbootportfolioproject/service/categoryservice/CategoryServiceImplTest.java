@@ -109,7 +109,7 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Varify the correct books "
+    @DisplayName("Verify the correct books "
             + "with chosen category id was returned")
     void getBookWithoutCategories_correctInputArguments_returnListWithBooks() {
 
@@ -188,7 +188,7 @@ class CategoryServiceImplTest {
     @Test
     @DisplayName("Check, that exception is throwing "
             + "when get books with non exist category id")
-    void getBookWithoutCategories_nonExistingId_thrownException() {
+    void getBookWithoutCategories_nonExistingCategoryId_thrownException() {
 
         Mockito.when(categoryRepository.existsById(Mockito.anyLong()))
                 .thenReturn(false);
@@ -203,7 +203,7 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Varify the books are returned "
+    @DisplayName("Verify the books are returned "
             + "when the DB is not empty")
     void findAll_nonEmptyDB_returnAllInputsFromDB() {
         Category category1 = new Category();

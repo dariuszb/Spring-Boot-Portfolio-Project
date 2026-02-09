@@ -1,7 +1,6 @@
 package org.example.springbootportfolioproject.controllers;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,9 +20,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -33,26 +31,20 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc
 class CategoryControllerTest {
 
-    protected static MockMvc mockMvc;
+    @Autowired
+    protected MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeAll
     public static void beforeAll(
-            @Autowired DataSource dataSource,
-            @Autowired WebApplicationContext applicationContext) throws SQLException {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(applicationContext)
-                .apply(springSecurity())
-                .build();
+            @Autowired DataSource dataSource) throws SQLException {
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
@@ -68,15 +60,15 @@ class CategoryControllerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify correctness of creation"
+    @DisplayName("Verify correctness of creation"
             + " new instance of category entity")
     void createCategory_createInputParams_ok() throws Exception {
 
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setName("Category 1");
-        categoryDto.setDescription("Category 1");
+        CategoryDto expected = new CategoryDto();
+        expected.setName("Category 1");
+        expected.setDescription("Category 1");
 
-        String jsonRequest = objectMapper.writeValueAsString(categoryDto);
+        String jsonRequest = objectMapper.writeValueAsString(expected);
 
         MvcResult result = mockMvc.perform(
                         post("/api/categories")
@@ -90,7 +82,8 @@ class CategoryControllerTest {
                 .getResponse()
                 .getContentAsString(), CategoryDto.class);
 
-        EqualsBuilder.reflectionEquals(categoryDto, actual);
+        assertThat(actual).usingRecursiveComparison()
+                .ignoringFields("id").isEqualTo(expected);
     }
 
     @Test
@@ -138,15 +131,15 @@ class CategoryControllerTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify the correctness of getting with chosen id")
+    @DisplayName("Verify the correctness of getting with chosen id")
     void getCategoryById() throws Exception {
 
         Long chosenCategoryId = 2L;
 
-        CategoryDto categoryDto2 = new CategoryDto();
-        categoryDto2.setId(2L);
-        categoryDto2.setName("crime story");
-        categoryDto2.setDescription("crime story");
+        CategoryDto expected = new CategoryDto();
+        expected.setId(2L);
+        expected.setName("crime story");
+        expected.setDescription("crime story");
 
         MvcResult result = mockMvc.perform(
                         get("/api/categories/{id}", chosenCategoryId)
@@ -157,11 +150,11 @@ class CategoryControllerTest {
 
         String httpResponse = result.getResponse().getContentAsString();
 
-        CategoryDto categoryDtoResult = objectMapper.readValue(httpResponse,
+        CategoryDto actual = objectMapper.readValue(httpResponse,
                 new TypeReference<CategoryDto>() {
             });
 
-        EqualsBuilder.reflectionEquals(categoryDtoResult, categoryDto2);
+        EqualsBuilder.reflectionEquals(expected, actual);
     }
 
     @Test
@@ -170,16 +163,16 @@ class CategoryControllerTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/back-to-values-before-update.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify correctness of updating category with chosen id")
+    @DisplayName("Verify correctness of updating category with chosen id")
     void updateCategory_correctInputParams_ok() throws Exception {
 
         Long categoryIdToUpdate = 2L;
 
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setName("Updated category name");
-        categoryDto.setDescription("Updated category description");
+        CategoryDto expected = new CategoryDto();
+        expected.setName("Updated category name");
+        expected.setDescription("Updated category description");
 
-        String jsonRequest = objectMapper.writeValueAsString(categoryDto);
+        String jsonRequest = objectMapper.writeValueAsString(expected);
 
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.put("/api/categories/{id}", categoryIdToUpdate)
@@ -195,7 +188,8 @@ class CategoryControllerTest {
             new TypeReference<CategoryDto>() {
             });
 
-        EqualsBuilder.reflectionEquals(categoryDto, actual);
+        assertThat(actual).usingRecursiveComparison()
+                .ignoringFields("id").isEqualTo(expected);
 
     }
 
