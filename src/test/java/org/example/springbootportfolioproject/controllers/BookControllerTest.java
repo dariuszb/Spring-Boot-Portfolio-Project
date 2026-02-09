@@ -2,7 +2,6 @@ package org.example.springbootportfolioproject.controllers;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,15 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.example.dto.bookdto.BookDto;
 import org.example.dto.bookdto.CreateBookRequestDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -35,14 +32,13 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
+@AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ExtendWith(MockitoExtension.class)
 class BookControllerTest {
 
-    protected static MockMvc mockMvc;
+    @Autowired
+    protected MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -50,13 +46,7 @@ class BookControllerTest {
     @BeforeAll
     static void beforeAll(
 
-            @Autowired DataSource dataSource,
-
-            @Autowired WebApplicationContext applicationContext) throws SQLException {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(applicationContext)
-                .apply(springSecurity())
-                .build();
+            @Autowired DataSource dataSource) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
@@ -73,7 +63,7 @@ class BookControllerTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify that all books from DB are returned.")
+    @DisplayName("Verify that all books from DB are returned.")
     void findAll_returnAllBooksInDB_success() throws Exception {
         List<BookDto> expected = new ArrayList<>();
         expected.add(new BookDto().setTitle("First").setAuthor("FirstAuthor")
@@ -119,7 +109,7 @@ class BookControllerTest {
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify that book with chosen id is returned")
+    @DisplayName("Verify that book with chosen id is returned")
     void getBookById_correctInputParams_returnBookDto() throws Exception {
         BookDto expected = new BookDto()
                 .setId(1L)
@@ -138,9 +128,10 @@ class BookControllerTest {
 
         String httpResponse = result.getResponse().getContentAsString();
 
-        BookDto bookDto = objectMapper.readValue(httpResponse, new TypeReference<BookDto>() {
+        BookDto actual = objectMapper.readValue(httpResponse, new TypeReference<BookDto>() {
         });
-        EqualsBuilder.reflectionEquals(expected, bookDto, "price");
+        assertThat(actual).usingRecursiveComparison()
+                .ignoringFields("id", "price").isEqualTo(expected);
     }
 
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -151,7 +142,7 @@ class BookControllerTest {
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify that new book is created by method")
+    @DisplayName("Verify that new book is created by method")
     void createBook_correctInputParams_ok() throws Exception {
 
         CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
@@ -181,7 +172,8 @@ class BookControllerTest {
                 .getResponse()
                 .getContentAsString(), BookDto.class);
 
-        EqualsBuilder.reflectionEquals(expected, actual);
+        assertThat(actual).usingRecursiveComparison()
+                .ignoringFields("id").isEqualTo(expected);
 
     }
 
@@ -193,7 +185,7 @@ class BookControllerTest {
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Varify correctness of update book with chosen id")
+    @DisplayName("Verify correctness of update book with chosen id")
     void updateBook_correctInputParams_ok() throws Exception {
 
         Long idOfBookToUpdate = 2L;
@@ -227,7 +219,8 @@ class BookControllerTest {
         BookDto actual = objectMapper.readValue(httpResponse, new TypeReference<BookDto>() {
         });
 
-        EqualsBuilder.reflectionEquals(expected, actual);
+        assertThat(actual).usingRecursiveComparison()
+                .ignoringFields("id").isEqualTo(expected);
 
     }
 }

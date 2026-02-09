@@ -44,7 +44,7 @@ public class BookServiceImplTest {
 
     @Test
     @DisplayName(
-            "Varify correctness of creation new book")
+            "Verify correctness of creation new book")
     public void createNewBook_correctInputsArguments_Ok() {
         CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
                 "Title1", "Author1", "897564231",
@@ -78,7 +78,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    @DisplayName("Varify throwing exception"
+    @DisplayName("Verify throwing exception"
             + " when category id is incorrect")
     public void createNewBook_invalidCategoryIdData_ThrowsException() {
         CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
@@ -97,7 +97,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    @DisplayName("Varify correctness of get book with chosen id")
+    @DisplayName("Verify correctness of get book with chosen id")
     public void getBookById_correctInputArguments_Ok() {
 
         Category category = new Category();
@@ -137,7 +137,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    @DisplayName("Varify correctness of update book with chosen id")
+    @DisplayName("Verify correctness of update book with chosen id")
     void updateBookById_correctInputArguments_ok() {
         Long bookId = 1L;
 
@@ -192,7 +192,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    @DisplayName("Varify correctness of get all books from non empty DB")
+    @DisplayName("Verify correctness of get all books from non empty DB")
     void findAll_nonEmptyBookTable_returnAllEntitiesFromDB() {
         Book book1 = new Book();
         book1.setId(1L)
