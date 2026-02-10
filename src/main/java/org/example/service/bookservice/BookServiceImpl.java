@@ -45,7 +45,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookDto> findAll(Pageable pageable) {
-        List<BookDto> list = bookRepository.findAll(pageable).stream()
+        List<BookDto> list = bookRepository.findAll(pageable).stream().toList()
+                .stream()
                 .map(bookMapper::toDto)
                 .toList();
         return new PageImpl<>(list);
@@ -53,7 +54,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto getBookById(Long id) {
-        isBookWithIdExist(id);
+        isBookWithIdExist(id); //optional z ifem
         Book book = bookRepository.findById(id).get();
         return bookMapper.toDto(book);
     }
@@ -67,7 +68,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto updateBookById(Long id, CreateBookRequestDto updateBookRequestDto) {
-        isBookWithIdExist(id);
+        isBookWithIdExist(id); //zmien na optional z (h)ifem
         Book bookToUpdate = bookRepository.findById(id).get();
         Book updatedBook = updateBook(bookToUpdate, updateBookRequestDto);
         return bookMapper.toDto(updatedBook);

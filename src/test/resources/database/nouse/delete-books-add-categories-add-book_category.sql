@@ -1,0 +1,13 @@
+DELETE FROM book_categories;
+DELETE FROM books;
+INSERT INTO books(id, title, author, isbn, price) VALUES(1, 'First', 'FirstAuthor', '123456701', 100);
+INSERT INTO books(id, title, author, isbn, price) VALUES(2, 'Second', 'SecondAuthor', '123456702', 200);
+INSERT INTO books(id, title, author, isbn, price) VALUES(3, 'Third', 'ThirdAuthor', '123456703', 300);
+DELETE FROM categories;
+INSERT INTO categories(id, name, description) VALUES(1, 'novel', 'novel');
+INSERT INTO categories(id, name, description) VALUES(2, 'crime story', 'crime story');
+INSERT INTO categories(id, name, description) VALUES(3, 'horror', 'horror');
+INSERT INTO book_categories(id, book_id, category_id) VALUES(1,1,3);
+INSERT INTO book_categories(id, book_id, category_id) VALUES(2, 2,1);
+INSERT INTO book_categories(id, book_id, category_id) VALUES(3, 2,3);
+INSERT INTO book_categories(id, book_id, category_id) VALUES(4, 3,3);

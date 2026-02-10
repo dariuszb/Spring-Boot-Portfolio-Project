@@ -1,4 +1,4 @@
-package org.example.springbootportfolioproject.controllers;
+package org.example.controllers;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -57,18 +57,18 @@ class CategoryControllerTest {
     }
 
     @Test
+    @DisplayName("Verify correctness of creation"
+            + " new instance of category entity")
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify correctness of creation"
-            + " new instance of category entity")
     void createCategory_createInputParams_ok() throws Exception {
 
-        CategoryDto expected = new CategoryDto();
-        expected.setName("Category 1");
-        expected.setDescription("Category 1");
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setName("Category 1");
+        categoryDto.setDescription("Category 1");
 
-        String jsonRequest = objectMapper.writeValueAsString(expected);
+        String jsonRequest = objectMapper.writeValueAsString(categoryDto);
 
         MvcResult result = mockMvc.perform(
                         post("/api/categories")
@@ -82,13 +82,12 @@ class CategoryControllerTest {
                 .getResponse()
                 .getContentAsString(), CategoryDto.class);
 
-        assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("id").isEqualTo(expected);
+        EqualsBuilder.reflectionEquals(categoryDto, actual);
     }
 
     @Test
-    @WithMockUser(username = "user", roles = {"USER"})
     @DisplayName("Check, that method return all inputs from DB")
+    @WithMockUser(username = "user", roles = {"USER"})
     @Sql(scripts = "classpath:database/insert-categories-to-categories-table.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
@@ -126,20 +125,20 @@ class CategoryControllerTest {
     }
 
     @Test
+    @DisplayName("Verify the correctness of getting with chosen id")
     @WithMockUser(username = "user", roles = {"USER"})
     @Sql(scripts = "classpath:database/insert-categories-to-categories-table.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify the correctness of getting with chosen id")
     void getCategoryById() throws Exception {
 
         Long chosenCategoryId = 2L;
 
-        CategoryDto expected = new CategoryDto();
-        expected.setId(2L);
-        expected.setName("crime story");
-        expected.setDescription("crime story");
+        CategoryDto categoryDto2 = new CategoryDto();
+        categoryDto2.setId(2L);
+        categoryDto2.setName("crime story");
+        categoryDto2.setDescription("crime story");
 
         MvcResult result = mockMvc.perform(
                         get("/api/categories/{id}", chosenCategoryId)
@@ -150,29 +149,29 @@ class CategoryControllerTest {
 
         String httpResponse = result.getResponse().getContentAsString();
 
-        CategoryDto actual = objectMapper.readValue(httpResponse,
+        CategoryDto categoryDtoResult = objectMapper.readValue(httpResponse,
                 new TypeReference<CategoryDto>() {
             });
 
-        Assertions.assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
+        EqualsBuilder.reflectionEquals(categoryDtoResult, categoryDto2);
     }
 
     @Test
+    @DisplayName("Verify correctness of updating category with chosen id")
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/insert-categories-to-categories-table.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/back-to-values-before-update.sql",
+    @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify correctness of updating category with chosen id")
     void updateCategory_correctInputParams_ok() throws Exception {
 
         Long categoryIdToUpdate = 2L;
 
-        CategoryDto expected = new CategoryDto();
-        expected.setName("Updated category name");
-        expected.setDescription("Updated category description");
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setName("Updated category name");
+        categoryDto.setDescription("Updated category description");
 
-        String jsonRequest = objectMapper.writeValueAsString(expected);
+        String jsonRequest = objectMapper.writeValueAsString(categoryDto);
 
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.put("/api/categories/{id}", categoryIdToUpdate)
@@ -188,8 +187,7 @@ class CategoryControllerTest {
             new TypeReference<CategoryDto>() {
             });
 
-        assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("id").isEqualTo(expected);
+        EqualsBuilder.reflectionEquals(categoryDto, actual);
 
     }
 

@@ -10,6 +10,7 @@ import org.example.dto.shoppingcart.ShoppingCartDto;
 import org.example.service.shoppingcart.ShoppingCartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,18 +32,20 @@ public class ShoppingCartController {
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
-    @Operation(summary = "Get user's shoppingcart", description = "Get user's shoppingcart")
-    public ShoppingCartDto getShoppingCart() {
-        return shoppingCartService.get();
+    @Operation(summary = "Get user's shopping cart", description = "Get user's shopping cart")
+    public ShoppingCartDto getShoppingCart(Authentication authentication) {
+        String userName = authentication.getName();
+        return shoppingCartService.get(userName);
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Add item to shoppingcart", description = "Add item to shoppingcart")
+    @Operation(summary = "Add item to shopping cart", description = "Add item to shopping cart")
     public ShoppingCartDto addCartItemToShoppingCart(
-            @RequestBody @Valid CreateCartItemDto createItemDto) {
-        return shoppingCartService.addBookToShoppingCart(createItemDto);
+            Authentication authentication, @RequestBody @Valid CreateCartItemDto createItemDto) {
+        String username = authentication.getName();
+        return shoppingCartService.addBookToShoppingCart(username, createItemDto);
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
@@ -50,10 +53,11 @@ public class ShoppingCartController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update cart item's properties",
             description = "Update cart item's properties")
-    public ShoppingCartDto updateCartItemById(@PathVariable Long cartItemId,
-                                              @RequestBody @Valid UpdateCartItemDto
-                                                      updateCartItemDto) {
-        return shoppingCartService.update(cartItemId, updateCartItemDto);
+    public ShoppingCartDto updateCartItemById(
+            Authentication authentication, @PathVariable Long cartItemId,
+            @RequestBody @Valid UpdateCartItemDto updateCartItemDto) {
+        String username = authentication.getName();
+        return shoppingCartService.update(username, cartItemId, updateCartItemDto);
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")

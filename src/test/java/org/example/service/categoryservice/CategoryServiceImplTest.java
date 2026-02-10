@@ -1,4 +1,4 @@
-package org.example.springbootportfolioproject.service.categoryservice;
+package org.example.service.categoryservice;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -17,7 +17,6 @@ import org.example.model.Book;
 import org.example.model.Category;
 import org.example.repository.book.BookRepository;
 import org.example.repository.category.CategoryRepository;
-import org.example.service.categoryservice.CategoryServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +47,7 @@ class CategoryServiceImplTest {
     private CategoryServiceImpl categoryServiceImpl;
 
     @Test
-
+    @DisplayName("Check, that exist category with chosen id is returned.")
     void getById_existId_Success() {
 
         Category category = new Category();
@@ -110,7 +109,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Verify the correct books "
-            + "with chosen category id was returned")
+            + "with chosen category id are returned")
     void getBookWithoutCategories_correctInputArguments_returnListWithBooks() {
 
         Category category1 = new Category();
