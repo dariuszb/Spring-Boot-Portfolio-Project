@@ -30,10 +30,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final BookRepository bookRepository;
 
     @Override
-    public ShoppingCartDto get() {
+    public ShoppingCartDto get(String userName) {
 
         ShoppingCart userShoppingCart =
-                shoppingCartRepository.findByUserEmail(getUserNameByAuthentication())
+                shoppingCartRepository.findByUserEmail(userName)
                         .orElseThrow(() -> new EntityNotFoundException(
                                 "ShoppingCart not found"
                         ));
@@ -43,11 +43,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ShoppingCartDto addBookToShoppingCart(CreateCartItemDto createCartItemDto) {
+    public ShoppingCartDto addBookToShoppingCart(
+            String username, CreateCartItemDto createCartItemDto) {
 
-        String userNameByAuthentication = getUserNameByAuthentication();
         ShoppingCart userShoppingCart = shoppingCartRepository
-                .findByUserEmail(userNameByAuthentication)
+                .findByUserEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Shopping cart not found"));
 
@@ -68,10 +68,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Transactional
     @Override
-    public ShoppingCartDto update(@Positive Long id, UpdateCartItemDto updateCartItemDto) {
+    public ShoppingCartDto update(String username,
+                                  @Positive Long id, UpdateCartItemDto updateCartItemDto) {
         ShoppingCart userShoppingCart = getShoppingCartByItemId(id);
 
-        if (userShoppingCart.getUser().getEmail().equals(getUserNameByAuthentication())) {
+        if (userShoppingCart.getUser().getEmail().equals(username)) {
             CartItem cartItem = cartItemRepository.findById(id).orElseThrow(
                     () -> new EntityNotFoundException(
                             "CartItem not found"));
@@ -121,7 +122,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         itemEntity.setBook(chosenBook);
         itemEntity.setQuantity(createCartItemDto.quantity());
 
-        shoppingCart.getCartItems().add(itemEntity);
         cartItemRepository.save(itemEntity);
 
     }

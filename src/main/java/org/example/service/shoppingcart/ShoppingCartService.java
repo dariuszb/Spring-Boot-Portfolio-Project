@@ -6,11 +6,11 @@ import org.example.dto.shoppingcart.ShoppingCartDto;
 
 public interface ShoppingCartService {
 
-    ShoppingCartDto get();
+    ShoppingCartDto get(String userName);
 
-    ShoppingCartDto addBookToShoppingCart(CreateCartItemDto createCartItemDto);
+    ShoppingCartDto addBookToShoppingCart(String username, CreateCartItemDto createCartItemDto);
 
-    ShoppingCartDto update(Long id, UpdateCartItemDto updateCartItemDto);
+    ShoppingCartDto update(String username, Long id, UpdateCartItemDto updateCartItemDto);
 
     void deleteItemById(Long cartItemId);
 

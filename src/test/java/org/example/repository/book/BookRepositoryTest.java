@@ -1,11 +1,12 @@
-package org.example.springbootportfolioproject.book;
+package org.example.repository.book;
+
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import org.example.model.Book;
 import org.example.model.Category;
-import org.example.repository.book.BookRepository;
 import org.example.repository.category.CategoryRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -13,15 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 
 @DataJpaTest
-@Sql(scripts = "classpath:database/delete-books-categories-book_categories.sql",
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
-@Sql(scripts = "classpath:database/input-category.sql",
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-
+@DirtiesContext(classMode = AFTER_CLASS)
+@Sql(scripts = "classpath:database/delete-all-books.sql",
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 class BookRepositoryTest {
 
     @Autowired
@@ -32,7 +32,9 @@ class BookRepositoryTest {
 
     @Test
     @DisplayName("Find all books with input category id")
-    void findAllBooksWithInputCategoriesId_correctInputData_returnCategoryWithInputId() {
+    @Sql(scripts = "classpath:database/clear-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findAllBooksWithInputCategoriesId_correctInputData_success() {
 
         Category category1 = new Category();
         category1.setName("Category 1");

@@ -1,4 +1,4 @@
-package org.example.springbootportfolioproject.service.bookservice;
+package org.example.service.bookservice;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,7 +15,6 @@ import org.example.model.Book;
 import org.example.model.Category;
 import org.example.repository.book.BookRepository;
 import org.example.repository.category.CategoryRepository;
-import org.example.service.bookservice.BookServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +43,7 @@ public class BookServiceImplTest {
 
     @Test
     @DisplayName(
-            "Verify correctness of creation new book")
+            "Valid correctness of creation new book")
     public void createNewBook_correctInputsArguments_Ok() {
         CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
                 "Title1", "Author1", "897564231",
@@ -71,7 +70,7 @@ public class BookServiceImplTest {
 
         BookDto savedDto = bookService.createBook(createBookRequestDto);
 
-        Assertions.assertThat(savedDto).isEqualTo(result);
+        org.assertj.core.api.Assertions.assertThat(savedDto).isEqualTo(result);
         Mockito.verify(bookRepository, Mockito.times(1)).save(book);
         Mockito.verifyNoMoreInteractions(bookRepository, bookMapper);
 
@@ -92,7 +91,7 @@ public class BookServiceImplTest {
 
         String exceptionMessage = "Category with id 5 not found";
 
-        Assertions.assertThat(exceptionMessage)
+        org.assertj.core.api.Assertions.assertThat(exceptionMessage)
                 .isEqualTo(entityNotFoundException.getMessage());
     }
 
@@ -131,7 +130,7 @@ public class BookServiceImplTest {
                 .thenReturn(Optional.of(book));
         Mockito.when(bookMapper.toDto(book)).thenReturn(bookDto);
 
-        Assertions.assertThat(
+        org.assertj.core.api.Assertions.assertThat(
                 bookService.getBookById(1L)).isEqualTo(bookDto);
 
     }
@@ -261,7 +260,7 @@ public class BookServiceImplTest {
         Mockito.when(bookMapper.toDto(book3)).thenReturn(bookDto3);
 
         Page<BookDto> result = new PageImpl<>(List.of(bookDto1, bookDto2, bookDto3));
-        /*Spy*/
+        
         Page<BookDto> all = bookService.findAll(Pageable.unpaged());
 
         Assertions.assertThat(all.getTotalPages()).isEqualTo(result.getTotalPages());

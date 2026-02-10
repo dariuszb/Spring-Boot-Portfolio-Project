@@ -1,1 +1,0 @@
-DELETE FROM books WHERE isbb=1234111111;

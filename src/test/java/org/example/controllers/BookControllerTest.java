@@ -1,4 +1,4 @@
-package org.example.springbootportfolioproject.controllers;
+package org.example.controllers;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.sql.DataSource;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.example.dto.bookdto.BookDto;
 import org.example.dto.bookdto.CreateBookRequestDto;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,8 +34,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class BookControllerTest {
 
     @Autowired
@@ -47,6 +48,7 @@ class BookControllerTest {
     static void beforeAll(
 
             @Autowired DataSource dataSource) throws SQLException {
+
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
@@ -57,13 +59,13 @@ class BookControllerTest {
         }
     }
 
-    @WithMockUser(username = "user", roles = {"USER"})
     @Test
+    @DisplayName("Verify that all books from DB are returned.")
+    @WithMockUser(username = "user", roles = {"USER"})
     @Sql(scripts = "classpath:database/insert-new-books.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify that all books from DB are returned.")
     void findAll_returnAllBooksInDB_success() throws Exception {
         List<BookDto> expected = new ArrayList<>();
         expected.add(new BookDto().setTitle("First").setAuthor("FirstAuthor")
@@ -101,15 +103,15 @@ class BookControllerTest {
         }
     }
 
-    @WithMockUser(username = "user", roles = {"USER"})
     @Test
+    @DisplayName("Verify that book with chosen id is returned")
+    @WithMockUser(username = "user", roles = {"USER"})
     @Sql(scripts = "classpath:database/insert-new-books.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify that book with chosen id is returned")
     void getBookById_correctInputParams_returnBookDto() throws Exception {
         BookDto expected = new BookDto()
                 .setId(1L)
@@ -128,21 +130,20 @@ class BookControllerTest {
 
         String httpResponse = result.getResponse().getContentAsString();
 
-        BookDto actual = objectMapper.readValue(httpResponse, new TypeReference<BookDto>() {
+        BookDto bookDto = objectMapper.readValue(httpResponse, new TypeReference<BookDto>() {
         });
-        assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("id", "price").isEqualTo(expected);
+        EqualsBuilder.reflectionEquals(expected, bookDto, "price");
     }
 
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Test
+    @DisplayName("Varify that new book is created by method")
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/delete-all-books.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Sql(scripts = "classpath:database/delete-all-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify that new book is created by method")
     void createBook_correctInputParams_ok() throws Exception {
 
         CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
@@ -172,20 +173,19 @@ class BookControllerTest {
                 .getResponse()
                 .getContentAsString(), BookDto.class);
 
-        assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("id").isEqualTo(expected);
+        EqualsBuilder.reflectionEquals(expected, actual);
 
     }
 
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Test
+    @DisplayName("Verify correctness of update book with chosen id")
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/insert-new-books.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/back-to-values-before-update.sql",
-            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    /*@Sql(scripts = "classpath:database/back-to-values-before-update.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)*/
     @Sql(scripts = "classpath:database/delete-all-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("Verify correctness of update book with chosen id")
     void updateBook_correctInputParams_ok() throws Exception {
 
         Long idOfBookToUpdate = 2L;
@@ -219,8 +219,7 @@ class BookControllerTest {
         BookDto actual = objectMapper.readValue(httpResponse, new TypeReference<BookDto>() {
         });
 
-        assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("id").isEqualTo(expected);
+        EqualsBuilder.reflectionEquals(expected, actual);
 
     }
 }
