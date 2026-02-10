@@ -32,7 +32,7 @@ class BookRepositoryTest {
 
     @Test
     @DisplayName("Find all books with input category id")
-    void findAllBooksWithInputCategoriesId_NonExistingId_ShouldThrowException() throws Exception {
+    void findAllBooksWithInputCategoriesId_correctInputData_returnCategoryWithInputId() {
 
         Category category1 = new Category();
         category1.setName("Category 1");

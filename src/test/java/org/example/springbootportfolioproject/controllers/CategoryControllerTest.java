@@ -154,7 +154,7 @@ class CategoryControllerTest {
                 new TypeReference<CategoryDto>() {
             });
 
-        EqualsBuilder.reflectionEquals(expected, actual);
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
     }
 
     @Test
