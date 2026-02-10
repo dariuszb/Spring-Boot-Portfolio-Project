@@ -187,8 +187,8 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Check, that exception is throwing "
-            + "when get books with non exist category id")
-    void getBookWithoutCategories_nonExistingCategoryId_thrownException() {
+            + "when category with input category id doesn't exist")
+    void getBookWithoutCategories_nonExistingCategory_thrownException() {
 
         Mockito.when(categoryRepository.existsById(Mockito.anyLong()))
                 .thenReturn(false);
