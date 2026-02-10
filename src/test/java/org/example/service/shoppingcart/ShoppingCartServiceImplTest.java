@@ -259,12 +259,3 @@ class ShoppingCartServiceImplTest {
     }
 
 }
-
-/*opisy, sqlele, checkstyle*/
-// user2email2.com musi zostać dodany przed każdą metodą (beforeEach) do bazy,
-//aby można było autentyzować
-//uwzględnij poprawki z pierwszego PR
-//pokrycie
-//Transactional remind
-//jedna kolejność adnotacji
-//zależności
