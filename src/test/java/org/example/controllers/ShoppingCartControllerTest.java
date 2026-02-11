@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -7,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
 import java.math.BigDecimal;
 import java.util.Set;
 import org.example.dto.cartitem.CartItemDto;
@@ -224,6 +226,86 @@ class ShoppingCartControllerTest {
 
         org.assertj.core.api.Assertions.assertThat(expected)
                 .isEqualTo(actual);
+
+    }
+
+    @Test
+    @DisplayName("Check, that forbidden status is returned when user is"
+            + " non authenticated")
+    void updateCartItemById_nonAuthenticatedUser_returnForbidden() throws Exception {
+
+        UpdateCartItemDto updateCartItemDto = new UpdateCartItemDto(5);
+
+        String jsonRequest = objectMapper.writeValueAsString(updateCartItemDto);
+
+        mockMvc.perform(
+                        put("/api/cart/cart-items/{cartItemId}",
+                                1L)
+                                .content(jsonRequest)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("Valid the non correct value of quantity")
+    @WithMockUser(username = "user2@email2.com", roles = "USER")
+    void updateCartItemById_invalidInputData_returnBadRequest() throws Exception {
+
+        UpdateCartItemDto updateCartItemDto = new UpdateCartItemDto(-5);
+
+        String jsonRequest = objectMapper.writeValueAsString(updateCartItemDto);
+
+        mockMvc.perform(
+                        put("/api/cart/cart-items/{cartItemId}",
+                                1L)
+                                .content(jsonRequest)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("Verify correctness of item's deletion")
+    @WithMockUser(username = "user2@email2.com", roles = "USER")
+    @Sql(scripts = "classpath:database/add-to-shopping-cart.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/clear-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void deleteCartItemById_nonEmptyDb_success() throws Exception {
+
+        mockMvc.perform(
+                        delete("/api/cart/cart-items/{cartItemId}",
+                                1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("Check, that exception is throwing, when cart item with"
+            + " input id doesn't exist")
+    @WithMockUser(username = "user2@email2.com", roles = "USER")
+    @Sql(scripts = "classpath:database/add-to-shopping-cart.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/clear-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void deleteCartItemById_nonExistItemWithInputId_thrownException() {
+
+        org.junit.jupiter.api.Assertions.assertThrows(ServletException.class,
+                        () -> mockMvc.perform(
+                        delete("/api/cart/cart-items/{cartItemId}",
+                                2L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                        .andExpect(status().isNoContent())
+                        .andReturn());
 
     }
 

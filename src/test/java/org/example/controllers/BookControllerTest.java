@@ -182,8 +182,6 @@ class BookControllerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/insert-new-books.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    /*@Sql(scripts = "classpath:database/back-to-values-before-update.sql",
-            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)*/
     @Sql(scripts = "classpath:database/delete-all-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateBook_correctInputParams_ok() throws Exception {

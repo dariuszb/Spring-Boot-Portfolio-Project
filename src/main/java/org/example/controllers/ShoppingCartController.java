@@ -65,8 +65,10 @@ public class ShoppingCartController {
     @Operation(summary = "Delete book from the cart",
             description = "Delete book from the cart")
     @DeleteMapping("/cart-items/{cartItemId}")
-    public void deleteCartItemById(@PathVariable Long cartItemId) {
-        shoppingCartService.deleteItemById(cartItemId);
+    public void deleteCartItemById(Authentication authentication,
+                                   @PathVariable Long cartItemId) {
+        String username = authentication.getName();
+        shoppingCartService.deleteItemById(username, cartItemId);
     }
 
 }
