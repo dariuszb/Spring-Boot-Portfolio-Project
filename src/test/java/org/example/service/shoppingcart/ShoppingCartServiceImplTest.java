@@ -1,5 +1,7 @@
 package org.example.service.shoppingcart;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
@@ -24,7 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.jdbc.Sql;
 
 @ExtendWith(MockitoExtension.class)
 class ShoppingCartServiceImplTest {
@@ -45,8 +46,6 @@ class ShoppingCartServiceImplTest {
     private ShoppingCartServiceImpl shoppingCartServiceImpl;
 
     @Test
-    @Sql(scripts = "classpath:database/add-to-shopping-cart.sql",
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @DisplayName("Check, that authenticated user's shopping cart is returned")
     void get_existShoppingCart_returnShoppingCart() {
 
@@ -94,6 +93,11 @@ class ShoppingCartServiceImplTest {
                         .thenReturn(shoppingCartDto);
 
         ShoppingCartDto dto = shoppingCartServiceImpl.get("user2@email2.com");
+
+        Mockito.verify(shoppingCartRepository, Mockito.times(1))
+                .findByUserEmail(user.getUsername());
+
+        Mockito.verify(shoppingCartMapper).toDto(any(ShoppingCart.class));
 
         Assertions.assertThat(dto).isEqualTo(shoppingCartDto);
 
@@ -152,13 +156,20 @@ class ShoppingCartServiceImplTest {
         ShoppingCartDto dto = shoppingCartServiceImpl.addBookToShoppingCart(
                 "user2@email2.com", createCartItemDto);
 
+        Mockito.verify(shoppingCartRepository).findByUserEmail(user.getEmail());
+
+        Mockito.verify(cartItemRepository)
+                .findItemByProperBookIdAndShoppingCartId(any(), any());
+
+        Mockito.verify(bookRepository).findById(any(Long.class));
+
+        Mockito.verify(cartItemRepository).save(any(CartItem.class));
+
         Assertions.assertThat(dto).isEqualTo(shoppingCartDto);
 
     }
 
     @Test
-    @Sql(scripts = "classpath:database/add-to-shopping-cart.sql",
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @DisplayName("Check, that quantity of exist cart item growth, when add"
             + " item with the same book id")
     void addBookToShoppingCart_existCartItem_returnShoppingCartWithCartItemWithAddedQuantity() {
@@ -212,6 +223,15 @@ class ShoppingCartServiceImplTest {
         ShoppingCartDto actual = shoppingCartServiceImpl.addBookToShoppingCart(
                 "user2@email2.com", createCartItemDto);
 
+        Mockito.verify(shoppingCartRepository).findByUserEmail(user.getEmail());
+
+        Mockito.verify(cartItemRepository)
+                .findItemByProperBookIdAndShoppingCartId(any(), any());
+
+        Mockito.verify(cartItemRepository).save(any(CartItem.class));
+
+        Mockito.verify(shoppingCartMapper).toDto(any(ShoppingCart.class));
+
         Assertions.assertThat(expected).isEqualTo(actual);
 
     }
@@ -219,7 +239,7 @@ class ShoppingCartServiceImplTest {
     @Test
     @DisplayName("Check, that exception is throwing when add"
             + " book to non exist shopping cart")
-    void addBookToShoppingCart_nonExistShoppingCart_throwsException() {
+    void addBookToShoppingCart_nonExistShoppingCart_thrownException() {
 
         EntityNotFoundException entityNotFoundException =
                 org.junit.jupiter.api.Assertions.assertThrows(
@@ -235,12 +255,10 @@ class ShoppingCartServiceImplTest {
 
     }
 
-    @Sql(scripts = "classpath:database/add-to-shopping-cart.sql",
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Test
     @DisplayName("Check, that exception is throwing when update"
             + " item of non exist shopping cart")
-    void update_nonExistShoppingCartId_throwException() {
+    void update_nonExistShoppingCartId_thrownException() {
 
         UpdateCartItemDto updateCartItemDto = new UpdateCartItemDto(
                 5);

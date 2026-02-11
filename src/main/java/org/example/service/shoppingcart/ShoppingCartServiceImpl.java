@@ -16,8 +16,6 @@ import org.example.repository.book.BookRepository;
 import org.example.repository.cartitem.CartItemRepository;
 import org.example.repository.shoppingcart.ShoppingCartRepository;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -88,9 +86,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Transactional
     @Override
-    public void deleteItemById(Long cartItemId) {
+    public void deleteItemById(String username, Long cartItemId) {
         ShoppingCart shoppingCartByItemId = getShoppingCartByItemId(cartItemId);
-        if (shoppingCartByItemId.getUser().getEmail().equals(getUserNameByAuthentication())) {
+        if (shoppingCartByItemId.getUser().getEmail().equals(username)) {
             CartItem item = cartItemRepository.findById(cartItemId)
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Item not found"
@@ -124,13 +122,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         cartItemRepository.save(itemEntity);
 
-    }
-
-    private String getUserNameByAuthentication() {
-        Authentication authentication = SecurityContextHolder.getContext()
-                .getAuthentication();
-
-        return authentication.getName();
     }
 
 }

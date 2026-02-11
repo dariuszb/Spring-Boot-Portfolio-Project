@@ -12,6 +12,6 @@ public interface ShoppingCartService {
 
     ShoppingCartDto update(String username, Long id, UpdateCartItemDto updateCartItemDto);
 
-    void deleteItemById(Long cartItemId);
+    void deleteItemById(String username, Long cartItemId);
 
 }

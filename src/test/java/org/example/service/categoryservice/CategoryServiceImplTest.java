@@ -1,6 +1,7 @@
 package org.example.service.categoryservice;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -65,6 +66,13 @@ class CategoryServiceImplTest {
         Mockito.when(categoryMapper.toDto(category)).thenReturn(categoryDto);
 
         CategoryDto resultCategory = categoryServiceImpl.getById(1L);
+
+        Mockito.verify(categoryRepository).existsById(any(Long.class));
+
+        Mockito.verify(categoryRepository).findById(any(Long.class));
+
+        Mockito.verify(categoryMapper).toDto(any(Category.class));
+
         Assertions.assertThat(categoryDto).isEqualTo(resultCategory);
     }
 
@@ -88,8 +96,6 @@ class CategoryServiceImplTest {
         category2.setName("category2");
         category2.setDescription("description2");
 
-        Mockito.when(categoryRepository.existsById(categoryId)).thenReturn(true);
-
         Mockito.when(categoryRepository.existsById(categoryId))
                 .thenReturn(true);
 
@@ -102,7 +108,15 @@ class CategoryServiceImplTest {
         Mockito.when(categoryMapper.toDto(category2))
                 .thenReturn(categoryDto);
 
-        CategoryDto updatedCategory = categoryServiceImpl.update(2L, categoryDto);
+        CategoryDto updatedCategory =
+                categoryServiceImpl.update(2L, categoryDto);
+
+        Mockito.verify(categoryRepository)
+                .existsById(any(Long.class));
+
+        Mockito.verify(categoryRepository).save(any(Category.class));
+
+        Mockito.verify(categoryMapper).toDto(any(Category.class));
 
         Assertions.assertThat(categoryDto).isEqualTo(updatedCategory);
     }
@@ -180,6 +194,15 @@ class CategoryServiceImplTest {
         List<BookDtoWithoutCategoryIds> bookWithoutCategories2 =
                 categoryServiceImpl.getBookWithoutCategories(2L);
 
+        Mockito.verify(categoryRepository, Mockito.times(2))
+                .existsById(any(Long.class));
+
+        Mockito.verify(bookRepository, Mockito.times(2))
+                .findAllByCategoryId(any(Long.class));
+
+        Mockito.verify(bookMapper, Mockito.times(2))
+                .toDtoWithoutCategories(any(Book.class));
+
         Assertions.assertThat(bookWithoutCategories2).isEqualTo(List.of(bookDto2));
 
     }
@@ -196,6 +219,9 @@ class CategoryServiceImplTest {
                 () -> categoryServiceImpl.getById(2L));
 
         String expectedMessage = "Category with id 2 doesn't exist";
+
+        Mockito.verify(categoryRepository)
+                .existsById(any(Long.class));
 
         Assertions.assertThat(expectedMessage).isEqualTo(exception.getMessage());
 
@@ -240,6 +266,12 @@ class CategoryServiceImplTest {
         Page<CategoryDto> all = categoryServiceImpl.findAll(Pageable.unpaged());
 
         List<CategoryDto> allList = all.stream().toList();
+
+        Mockito.verify(categoryRepository).findAll(Pageable.unpaged());
+
+        Mockito.verify(categoryMapper, Mockito.times(2))
+                .toDto(any(Category.class));
+
         Assertions.assertThat(all.getTotalElements()).isEqualTo(2);
 
         Assertions.assertThat(categoryMapper.toDto(category1))

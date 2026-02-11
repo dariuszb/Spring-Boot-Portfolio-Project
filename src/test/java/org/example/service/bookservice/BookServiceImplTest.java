@@ -1,6 +1,7 @@
 package org.example.service.bookservice;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,21 +66,28 @@ public class BookServiceImplTest {
                 .setCoverImage("CoverImage1");
 
         Mockito.when(bookMapper.toEntity(createBookRequestDto)).thenReturn(book);
+
         Mockito.when(bookRepository.save(book)).thenReturn(book);
+
         Mockito.when(bookMapper.toDto(book)).thenReturn(result);
 
-        BookDto savedDto = bookService.createBook(createBookRequestDto);
+        bookService.createBook(createBookRequestDto);
 
-        org.assertj.core.api.Assertions.assertThat(savedDto).isEqualTo(result);
-        Mockito.verify(bookRepository, Mockito.times(1)).save(book);
+        Mockito.verify(bookRepository).save(any(Book.class));
+
+        Mockito.verify(bookMapper).toDto(any(Book.class));
+
         Mockito.verifyNoMoreInteractions(bookRepository, bookMapper);
+
+        org.assertj.core.api.Assertions.assertThat(
+                bookService.createBook(createBookRequestDto)).isEqualTo(result);
 
     }
 
     @Test
     @DisplayName("Verify throwing exception"
             + " when category id is incorrect")
-    public void createNewBook_invalidCategoryIdData_ThrowsException() {
+    public void createNewBook_invalidCategoryIdData_ThrownException() {
         CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
                 "Title1", "Author1", "897564231",
                 BigDecimal.valueOf(100), Set.of(5L), "Description1",
@@ -115,8 +123,8 @@ public class BookServiceImplTest {
                 .setDescription("Description1")
                 .setCoverImage("CoverImage1");
 
-        BookDto bookDto = new BookDto();
-        bookDto.setId(bookId)
+        BookDto expected = new BookDto();
+        expected.setId(bookId)
                 .setTitle("Title1")
                 .setAuthor("Author1")
                 .setIsbn("123456789")
@@ -126,12 +134,22 @@ public class BookServiceImplTest {
                 .setCoverImage("CoverImage1");
 
         Mockito.when(bookRepository.existsById(1L)).thenReturn(true);
+
         Mockito.when(bookRepository.findById(bookId))
                 .thenReturn(Optional.of(book));
-        Mockito.when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        Mockito.when(bookMapper.toDto(book)).thenReturn(expected);
+
+        BookDto actual = bookService.getBookById(1L);
+
+        Mockito.verify(bookRepository).existsById(any(Long.class));
+
+        Mockito.verify(bookRepository).findById(any(Long.class));
+
+        Mockito.verify(bookMapper).toDto(any(Book.class));
 
         org.assertj.core.api.Assertions.assertThat(
-                bookService.getBookById(1L)).isEqualTo(bookDto);
+                actual).isEqualTo(expected);
 
     }
 
@@ -185,6 +203,14 @@ public class BookServiceImplTest {
                 .thenReturn(updatedBookDto);
 
         BookDto result = bookService.updateBookById(1L, newBookValues);
+
+        Mockito.verify(bookRepository).existsById(any(Long.class));
+
+        Mockito.verify(bookRepository).findById(any(Long.class));
+
+        Mockito.verify(bookRepository).save(any(Book.class));
+
+        Mockito.verify(bookMapper).toDto(any(Book.class));
 
         Assertions.assertThat(updatedBookDto).isEqualTo(result);
 
@@ -262,6 +288,11 @@ public class BookServiceImplTest {
         Page<BookDto> result = new PageImpl<>(List.of(bookDto1, bookDto2, bookDto3));
         
         Page<BookDto> all = bookService.findAll(Pageable.unpaged());
+
+        Mockito.verify(bookRepository).findAll(Pageable.unpaged());
+
+        Mockito.verify(bookMapper, Mockito.times(3))
+                .toDto(any(Book.class));
 
         Assertions.assertThat(all.getTotalPages()).isEqualTo(result.getTotalPages());
         Assertions.assertThat(all.getTotalElements()).isEqualTo(result.getTotalElements());
